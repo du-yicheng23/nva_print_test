@@ -7,6 +7,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+message("Running ${PROJECT_NAME}.")
+
 set(BUILD_GMOCK OFF)
 add_subdirectory(./googletest)
 

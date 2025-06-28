@@ -4,6 +4,8 @@ project(build_test C)
 
 set(CMAKE_C_STANDARD 90)
 
+message("Running ${PROJECT_NAME}.")
+
 add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE main.c)
