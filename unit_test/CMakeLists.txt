@@ -12,6 +12,9 @@ message("Running ${PROJECT_NAME}.")
 set(BUILD_GMOCK OFF)
 add_subdirectory(./googletest)
 
+option(UNIT_TEST_INLINE_MODE "Enable inline mode for unit tests" OFF)
+
+set(NVA_INLINE_MODE ${UNIT_TEST_INLINE_MODE})
 add_subdirectory(../nva_print ../nva_print)
 target_compile_definitions(nva_print INTERFACE -DNVA_ADD_USER_OPTIONS)
 target_include_directories(nva_print INTERFACE ./nva_user_option/)
