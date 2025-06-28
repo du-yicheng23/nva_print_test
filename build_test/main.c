@@ -5,7 +5,14 @@
  * @brief 主函数
  */
 
-int mian(void)
+#include <stdio.h>
+
+int nva_putchar(const char c)
+{
+    return putchar(c);
+}
+
+int main(void)
 {
     return 0;
 }
