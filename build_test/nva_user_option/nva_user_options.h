@@ -2,9 +2,9 @@
  * @file nva_user_options.h
  * @author DuYicheng
  * @date 2025-06-28
- * @brief 
+ * @brief build_test 用户配置头文件
  */
- 
+
 #pragma once
 #ifndef NVA_NVA_USER_OPTIONS_H
 #define NVA_NVA_USER_OPTIONS_H

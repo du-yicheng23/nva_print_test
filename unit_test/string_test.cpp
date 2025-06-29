@@ -74,3 +74,42 @@ TEST(StringTest, nva_strcmp)
     EXPECT_STREQ(demo(string, "Hello there"), "precedes");
     EXPECT_STREQ(demo("Hello, everybody!" + 12, "Hello, somebody!" + 11), "equals");
 }
+
+TEST(StringTest, nva_memcpy)
+{
+    char dest[50];
+    const char* src = "Hello, World!";
+    EXPECT_EQ(nva_memcpy(dest, src, 14), dest);
+    EXPECT_STREQ(dest, "Hello, World!");
+
+    char empty_dest[50] = "";
+    EXPECT_EQ(nva_memcpy(empty_dest, "Test", 5), empty_dest);
+    EXPECT_STREQ(empty_dest, "Test");
+
+    const char long_src[50] = "This is a long string for testing.";
+    char long_dest[50] = "";
+    EXPECT_EQ(nva_memcpy(long_dest, long_src, 35), long_dest);
+    EXPECT_STREQ(long_dest, "This is a long string for testing.");
+
+    const int arr_src[] = {1};
+    int arr_dest[1];
+    EXPECT_EQ(nva_memcpy(arr_dest, arr_src, sizeof arr_src), arr_dest);
+    EXPECT_EQ(arr_dest[0], 1);
+
+    const short val = 32556;
+    short dst;
+    EXPECT_EQ(nva_memcpy(&dst, &val, sizeof(val)), &dst);
+    EXPECT_EQ(dst, val);
+
+    const signed char uchar_src[] = {1, 35, 31, 127, 0, 83, 11, 42, 42, 2, 7, 21, 53, 12, 0, 0, 0, 0, 0, 0, 12, 56};
+    signed char uchar_dest[sizeof(uchar_src)];
+    EXPECT_EQ(nva_memcpy(uchar_dest, uchar_src, sizeof(uchar_src)), uchar_dest);
+    bool is_equal = true;
+    for (size_t i = 0; i < sizeof(uchar_src); ++i) {
+        if (uchar_dest[i] != uchar_src[i]) {
+            is_equal = false;
+            break;
+        }
+    }
+    EXPECT_TRUE(is_equal) << "The uchar arrays are not equal after memcpy.";
+}
