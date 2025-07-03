@@ -322,7 +322,7 @@
             <InterruptVectorAddress>0</InterruptVectorAddress>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT</Define>
+              <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT,NVA_NO_STRING_H,NVA_NO_LONG_LONG_TYPE</Define>
               <Undefine></Undefine>
               <IncludePath>.\inc;..\..\nva_print\inc;..\..\nva_print\decl_and_def</IncludePath>
             </VariousControls>
@@ -390,6 +390,11 @@
               <FileName>nva_print.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\nva_print\src\nva_print.c</FilePath>
+            </File>
+            <File>
+              <FileName>nva_stack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\nva_print\src\nva_stack.c</FilePath>
             </File>
             <File>
               <FileName>nva_string.c</FileName>

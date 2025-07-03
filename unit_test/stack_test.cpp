@@ -7,9 +7,7 @@
 
 #include <gtest/gtest.h>
 
-extern "C" {
 #include "nva/stack.h"
-}
 
 class StackTest : public ::testing::Test
 {
@@ -205,6 +203,6 @@ TEST(StackMacroTest, StackInitValue)
     EXPECT_EQ(s.data_top, 0);
     for (int i = 0; i < NVA_STACK_DEFAULT_SIZE; ++i) {
         EXPECT_EQ(s.type[i], 0);
-        EXPECT_EQ(s.data[i], 0);
+        EXPECT_EQ(s.data_store[i], 0);
     }
 }

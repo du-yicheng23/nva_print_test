@@ -5,6 +5,11 @@
  * @brief 主函数
  */
 
+int nva_putchar(char c)
+{
+    return c;
+}
+
 void main(void)
 {
     while (1) {
