@@ -9,6 +9,8 @@
 
 #include "nva/string.h"
 
+#include <climits>
+
 TEST(StringTest, nva_strlen)
 {
     const auto str = "Hello, World!";
@@ -112,4 +114,75 @@ TEST(StringTest, nva_memcpy)
         }
     }
     EXPECT_TRUE(is_equal) << "The uchar arrays are not equal after memcpy.";
+}
+
+TEST(StringTest, nva_itoa)
+{
+    char buffer[50];
+
+    for (unsigned char i = 2; i <= 16; i++) {
+        EXPECT_STREQ(nva_itoa(0, buffer, i, NVA_FALSE), "0");
+        EXPECT_STREQ(nva_itoa(0, buffer, i, NVA_TRUE), "0");
+    }
+
+    EXPECT_STREQ(nva_itoa(1, buffer, 10, NVA_FALSE), "1");
+    EXPECT_STREQ(nva_itoa(-1, buffer, 10, NVA_FALSE), "-1");
+    EXPECT_STREQ(nva_itoa(12345, buffer, 10, NVA_FALSE), "12345");
+    EXPECT_STREQ(nva_itoa(-12345, buffer, 10, NVA_FALSE), "-12345");
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, 10, NVA_FALSE), "2147483647");
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 10, NVA_FALSE), "-2147483648");
+
+    EXPECT_STREQ(nva_itoa(0xF2, buffer, 16, NVA_FALSE), "f2");
+    EXPECT_STREQ(nva_itoa(-0xdF, buffer, 16, NVA_FALSE), "-df");
+    EXPECT_STREQ(nva_itoa(0xF2, buffer, 16, NVA_TRUE), "F2");
+    EXPECT_STREQ(nva_itoa(-0xdF, buffer, 16, NVA_TRUE), "-DF");
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, 16, NVA_TRUE), "7FFFFFFF");
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 16, NVA_TRUE), "-80000000");
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, 16, NVA_FALSE), "7fffffff");
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 16, NVA_FALSE), "-80000000");
+
+    EXPECT_STREQ(nva_itoa(1, buffer, 2, NVA_FALSE), "1");
+    EXPECT_STREQ(nva_itoa(-1, buffer, 2, NVA_FALSE), "-1");
+    EXPECT_STREQ(nva_itoa(12345, buffer, 2, NVA_FALSE), "11000000111001");
+    EXPECT_STREQ(nva_itoa(-12345, buffer, 2, NVA_FALSE), "-11000000111001");
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, 2, NVA_FALSE), "1111111111111111111111111111111");
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 2, NVA_FALSE), "-10000000000000000000000000000000");
+}
+
+TEST(StringTest, nva_uitoa)
+{
+    char buffer[50];
+
+    // 2~16 进制下的 0
+    for (unsigned char base = 2; base <= 16; base++) {
+        EXPECT_STREQ(nva_uitoa(0u, buffer, base, NVA_FALSE), "0");
+        EXPECT_STREQ(nva_uitoa(0u, buffer, base, NVA_TRUE), "0");
+    }
+
+    // 10进制常规数
+    EXPECT_STREQ(nva_uitoa(1u, buffer, 10, NVA_FALSE), "1");
+    EXPECT_STREQ(nva_uitoa(12345u, buffer, 10, NVA_FALSE), "12345");
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 10, NVA_FALSE), "4294967295"); // UINT32_MAX
+
+    // 16进制大小写
+    EXPECT_STREQ(nva_uitoa(0xF2u, buffer, 16, NVA_FALSE), "f2");
+    EXPECT_STREQ(nva_uitoa(0xDFu, buffer, 16, NVA_FALSE), "df");
+    EXPECT_STREQ(nva_uitoa(0xF2u, buffer, 16, NVA_TRUE), "F2");
+    EXPECT_STREQ(nva_uitoa(0xDFu, buffer, 16, NVA_TRUE), "DF");
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 16, NVA_TRUE), "FFFFFFFF");
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 16, NVA_FALSE), "ffffffff");
+
+    // 2进制
+    EXPECT_STREQ(nva_uitoa(1u, buffer, 2, NVA_FALSE), "1");
+    EXPECT_STREQ(nva_uitoa(12345u, buffer, 2, NVA_FALSE), "11000000111001");
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 2, NVA_FALSE), "11111111111111111111111111111111");
+
+    // 8进制
+    EXPECT_STREQ(nva_uitoa(12345u, buffer, 8, NVA_FALSE), "30071");
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 8, NVA_FALSE), "37777777777");
+
+    // 边界值
+    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, 10, NVA_FALSE), "4294967295");
+    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, 16, NVA_TRUE), "FFFFFFFF");
+    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, 2, NVA_FALSE), "11111111111111111111111111111111");
 }
