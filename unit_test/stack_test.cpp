@@ -121,7 +121,7 @@ TEST(StackMacroTest, TypeSize)
 TEST_F(StackTest, StackInit)
 {
     nva_Stack s;
-    nva_StatusCode code = nva_stackInit(&s);
+    nva_ErrorCode code = nva_stackInit(&s);
     ASSERT_EQ(code, 0);
     ASSERT_EQ(s.type_top, 0);
     ASSERT_EQ(s.data_top, 0);
