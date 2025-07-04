@@ -141,6 +141,9 @@ TEST_F(StackTest, StackMultiType)
     const double d = 2.71828;
     const void* const p = &i;
     const char* const str = "Hello, NVA!";
+
+    // test push
+
     ASSERT_EQ(nva_stackPush(&stack, &c, NVA_TYPEID_CHAR), NVA_SUCCESS);
     ASSERT_EQ(nva_stackPush(&stack, &s, NVA_TYPEID_SSHORT), NVA_SUCCESS);
     ASSERT_EQ(nva_stackPush(&stack, &i, NVA_TYPEID_SINT), NVA_SUCCESS);
@@ -154,18 +157,62 @@ TEST_F(StackTest, StackMultiType)
 
     nva_TypeId tid = 0;
     const char* str_out = nullptr;
+    void* ptr_out = nullptr;
+    double d_out = 0;
+    float f_out = 0;
+    long l_out = 0;
+    int i_out = 0;
+    short s_out = 0;
+    char c_out = 0;
+
+    // test peek
+
+    ASSERT_EQ(nva_stackPeek(&stack, 0, &str_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_STR);
+    EXPECT_STREQ(str_out, str);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 1, &ptr_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_PTR);
+    EXPECT_EQ(ptr_out, p);
+    EXPECT_EQ(*static_cast<int*>(ptr_out), *static_cast<const int*>(p));
+
+    ASSERT_EQ(nva_stackPeek(&stack, 2, &d_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_DOUBLE);
+    EXPECT_DOUBLE_EQ(d_out, d);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 3, &f_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_FLOAT);
+    EXPECT_FLOAT_EQ(f_out, f);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 4, &l_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_SLONG);
+    EXPECT_EQ(l_out, l);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 5, &i_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_SINT);
+    EXPECT_EQ(i_out, i);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 6, &s_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_SSHORT);
+    EXPECT_EQ(s_out, s);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 7, &c_out, &tid), NVA_SUCCESS);
+    EXPECT_EQ(tid, NVA_TYPEID_CHAR);
+    EXPECT_EQ(c_out, c);
+
+    ASSERT_EQ(nva_stackPeek(&stack, 8, &c_out, &tid), NVA_EMPTY);
+
+    // test pop
+
     ASSERT_EQ(nva_stackPop(&stack, &str_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_STR);
     EXPECT_STREQ(str_out, str);
 
-    void* out = nullptr;
-    double d_out = 0;
-    ASSERT_EQ(nva_stackPop(&stack, &out, &tid), NVA_SUCCESS);
+    ASSERT_EQ(nva_stackPop(&stack, &ptr_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_PTR);
-    EXPECT_EQ(out, p);
-    EXPECT_EQ(*static_cast<int*>(out), *static_cast<const int*>(p));
+    EXPECT_EQ(ptr_out, p);
+    EXPECT_EQ(*static_cast<int*>(ptr_out), *static_cast<const int*>(p));
 
-    float f_out = 0;
     ASSERT_EQ(nva_stackPop(&stack, &d_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_DOUBLE);
     EXPECT_DOUBLE_EQ(d_out, d);
@@ -174,25 +221,24 @@ TEST_F(StackTest, StackMultiType)
     EXPECT_EQ(tid, NVA_TYPEID_FLOAT);
     EXPECT_FLOAT_EQ(f_out, f);
 
-    long l_out = 0;
     ASSERT_EQ(nva_stackPop(&stack, &l_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_SLONG);
     EXPECT_EQ(l_out, l);
 
-    int i_out = 0;
     ASSERT_EQ(nva_stackPop(&stack, &i_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_SINT);
     EXPECT_EQ(i_out, i);
 
-    short s_out = 0;
     ASSERT_EQ(nva_stackPop(&stack, &s_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_SSHORT);
     EXPECT_EQ(s_out, s);
 
-    char c_out = 0;
     ASSERT_EQ(nva_stackPop(&stack, &c_out, &tid), NVA_SUCCESS);
     EXPECT_EQ(tid, NVA_TYPEID_CHAR);
     EXPECT_EQ(c_out, c);
+
+    ASSERT_EQ(stack.type_top, 0);
+    ASSERT_EQ(stack.data_top, 0);
 }
 
 // NVA_STACK_INIT_VALUE 测试
