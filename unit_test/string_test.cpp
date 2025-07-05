@@ -116,6 +116,22 @@ TEST(StringTest, nva_memcpy)
     EXPECT_TRUE(is_equal) << "The uchar arrays are not equal after memcpy.";
 }
 
+TEST(StringTest, nva_atoi)
+{
+    EXPECT_EQ(nva_atoi("123"), 123);
+    EXPECT_EQ(nva_atoi("-123"), -123);
+    EXPECT_EQ(nva_atoi("0123"), 123);
+    EXPECT_EQ(nva_atoi("-0123"), -123);
+    EXPECT_EQ(nva_atoi("0"), 0);
+    EXPECT_EQ(nva_atoi("-0"), 0);
+
+    EXPECT_EQ(nva_atoi(""), 0);
+    EXPECT_EQ(nva_atoi("1-0"), 1);
+    EXPECT_EQ(nva_atoi("65431-0"), 65431);
+    EXPECT_EQ(nva_atoi("--0"), 0);
+    EXPECT_EQ(nva_atoi("a"), 0);
+}
+
 TEST(StringTest, nva_itoa)
 {
     char buffer[50];
