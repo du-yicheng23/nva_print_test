@@ -118,18 +118,31 @@ TEST(StringTest, nva_memcpy)
 
 TEST(StringTest, nva_atoi)
 {
-    EXPECT_EQ(nva_atoi("123"), 123);
-    EXPECT_EQ(nva_atoi("-123"), -123);
-    EXPECT_EQ(nva_atoi("0123"), 123);
-    EXPECT_EQ(nva_atoi("-0123"), -123);
-    EXPECT_EQ(nva_atoi("0"), 0);
-    EXPECT_EQ(nva_atoi("-0"), 0);
+    unsigned int width;
 
-    EXPECT_EQ(nva_atoi(""), 0);
-    EXPECT_EQ(nva_atoi("1-0"), 1);
-    EXPECT_EQ(nva_atoi("65431-0"), 65431);
-    EXPECT_EQ(nva_atoi("--0"), 0);
-    EXPECT_EQ(nva_atoi("a"), 0);
+    EXPECT_EQ(nva_atoi("123", &width), 123);
+    EXPECT_EQ(width, 3);
+    EXPECT_EQ(nva_atoi("-123", &width), -123);
+    EXPECT_EQ(width, 4);
+    EXPECT_EQ(nva_atoi("0123", &width), 123);
+    EXPECT_EQ(width, 4);
+    EXPECT_EQ(nva_atoi("-0123", &width), -123);
+    EXPECT_EQ(width, 5);
+    EXPECT_EQ(nva_atoi("0", &width), 0);
+    EXPECT_EQ(width, 1);
+    EXPECT_EQ(nva_atoi("-0", &width), 0);
+    EXPECT_EQ(width, 2);
+
+    EXPECT_EQ(nva_atoi("", &width), 0);
+    EXPECT_EQ(width, 0);
+    EXPECT_EQ(nva_atoi("1-0", &width), 1);
+    EXPECT_EQ(width, 1);
+    EXPECT_EQ(nva_atoi("65431-0", &width), 65431);
+    EXPECT_EQ(width, 5);
+    EXPECT_EQ(nva_atoi("--0", &width), 0);
+    EXPECT_EQ(width, 0);
+    EXPECT_EQ(nva_atoi("a", &width), 0);
+    EXPECT_EQ(width, 0);
 }
 
 TEST(StringTest, nva_itoa)
@@ -178,7 +191,7 @@ TEST(StringTest, nva_uitoa)
     // 10进制常规数
     EXPECT_STREQ(nva_uitoa(1u, buffer, 10, NVA_FALSE), "1");
     EXPECT_STREQ(nva_uitoa(12345u, buffer, 10, NVA_FALSE), "12345");
-    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 10, NVA_FALSE), "4294967295"); // UINT32_MAX
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 10, NVA_FALSE), "4294967295");  // UINT32_MAX
 
     // 16进制大小写
     EXPECT_STREQ(nva_uitoa(0xF2u, buffer, 16, NVA_FALSE), "f2");
