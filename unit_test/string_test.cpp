@@ -9,6 +9,7 @@
 
 #include "nva/string.h"
 
+#include <string_view>
 #include <climits>
 
 TEST(StringTest, nva_strlen)
@@ -147,35 +148,72 @@ TEST(StringTest, nva_atoi)
 
 TEST(StringTest, nva_itoa)
 {
+#define NVA_TEST_ITOA_CHECK(value, dest, attr, width, expect_str)               \
+    do {                                                                        \
+        EXPECT_STREQ(nva_itoa((value), (dest), (attr), (width)), (expect_str)); \
+        EXPECT_EQ((*(width)), std::string_view{expect_str}.length());           \
+    } while (0)
+
     char buffer[50];
 
     for (unsigned char i = 2; i <= 16; i++) {
-        EXPECT_STREQ(nva_itoa(0, buffer, i, NVA_FALSE), "0");
-        EXPECT_STREQ(nva_itoa(0, buffer, i, NVA_TRUE), "0");
+        nva_NumToStringAttr attr{.base = i, .upper_case = NVA_TRUE};
+        unsigned int width;
+
+        NVA_TEST_ITOA_CHECK(0, buffer, &attr, &width, "0");
+
+        attr.upper_case = NVA_FALSE;
+        NVA_TEST_ITOA_CHECK(0, buffer, &attr, &width, "0");
     }
 
-    EXPECT_STREQ(nva_itoa(1, buffer, 10, NVA_FALSE), "1");
-    EXPECT_STREQ(nva_itoa(-1, buffer, 10, NVA_FALSE), "-1");
-    EXPECT_STREQ(nva_itoa(12345, buffer, 10, NVA_FALSE), "12345");
-    EXPECT_STREQ(nva_itoa(-12345, buffer, 10, NVA_FALSE), "-12345");
-    EXPECT_STREQ(nva_itoa(2147483647, buffer, 10, NVA_FALSE), "2147483647");
-    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 10, NVA_FALSE), "-2147483648");
+    nva_NumToStringAttr attr{.base = 10, .upper_case = NVA_TRUE};
+    unsigned int width;
+    EXPECT_STREQ(nva_itoa(1, buffer, &attr, &width), "1");
+    EXPECT_EQ(width, 1);
+    EXPECT_STREQ(nva_itoa(-1, buffer, &attr, &width), "-1");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_itoa(12345, buffer, &attr, &width), "12345");
+    EXPECT_EQ(width, 5);
+    EXPECT_STREQ(nva_itoa(-12345, buffer, &attr, &width), "-12345");
+    EXPECT_EQ(width, 6);
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, &attr, &width), "2147483647");
+    EXPECT_EQ(width, 10);
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, &attr, &width), "-2147483648");
+    EXPECT_EQ(width, 11);
 
-    EXPECT_STREQ(nva_itoa(0xF2, buffer, 16, NVA_FALSE), "f2");
-    EXPECT_STREQ(nva_itoa(-0xdF, buffer, 16, NVA_FALSE), "-df");
-    EXPECT_STREQ(nva_itoa(0xF2, buffer, 16, NVA_TRUE), "F2");
-    EXPECT_STREQ(nva_itoa(-0xdF, buffer, 16, NVA_TRUE), "-DF");
-    EXPECT_STREQ(nva_itoa(2147483647, buffer, 16, NVA_TRUE), "7FFFFFFF");
-    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 16, NVA_TRUE), "-80000000");
-    EXPECT_STREQ(nva_itoa(2147483647, buffer, 16, NVA_FALSE), "7fffffff");
-    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 16, NVA_FALSE), "-80000000");
+    attr = {.base = 16, .upper_case = NVA_FALSE};
+    EXPECT_STREQ(nva_itoa(0xF2, buffer, &attr, &width), "f2");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_itoa(-0xdF, buffer, &attr, &width), "-df");
+    EXPECT_EQ(width, 3);
+    attr.upper_case = NVA_TRUE;
+    EXPECT_STREQ(nva_itoa(0xF2, buffer, &attr, &width), "F2");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_itoa(-0xdF, buffer, &attr, &width), "-DF");
+    EXPECT_EQ(width, 3);
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, &attr, &width), "7FFFFFFF");
+    EXPECT_EQ(width, 8);
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, &attr, &width), "-80000000");
+    EXPECT_EQ(width, 9);
+    attr.upper_case = NVA_FALSE;
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, &attr, &width), "7fffffff");
+    EXPECT_EQ(width, 8);
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, &attr, &width), "-80000000");
+    EXPECT_EQ(width, 9);
 
-    EXPECT_STREQ(nva_itoa(1, buffer, 2, NVA_FALSE), "1");
-    EXPECT_STREQ(nva_itoa(-1, buffer, 2, NVA_FALSE), "-1");
-    EXPECT_STREQ(nva_itoa(12345, buffer, 2, NVA_FALSE), "11000000111001");
-    EXPECT_STREQ(nva_itoa(-12345, buffer, 2, NVA_FALSE), "-11000000111001");
-    EXPECT_STREQ(nva_itoa(2147483647, buffer, 2, NVA_FALSE), "1111111111111111111111111111111");
-    EXPECT_STREQ(nva_itoa(-2147483648, buffer, 2, NVA_FALSE), "-10000000000000000000000000000000");
+    attr = {.base = 2, .upper_case = NVA_FALSE};
+    EXPECT_STREQ(nva_itoa(1, buffer, &attr, &width), "1");
+    EXPECT_EQ(width, 1);
+    EXPECT_STREQ(nva_itoa(-1, buffer, &attr, &width), "-1");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_itoa(12345, buffer, &attr, &width), "11000000111001");
+    EXPECT_EQ(width, 14);
+    EXPECT_STREQ(nva_itoa(-12345, buffer, &attr, &width), "-11000000111001");
+    EXPECT_EQ(width, 15);
+    EXPECT_STREQ(nva_itoa(2147483647, buffer, &attr, &width), "1111111111111111111111111111111");
+    EXPECT_EQ(width, 31);
+    EXPECT_STREQ(nva_itoa(-2147483648, buffer, &attr, &width), "-10000000000000000000000000000000");
+    EXPECT_EQ(width, std::string_view{"-10000000000000000000000000000000"}.length());
 }
 
 TEST(StringTest, nva_uitoa)
@@ -183,37 +221,72 @@ TEST(StringTest, nva_uitoa)
     char buffer[50];
 
     // 2~16 进制下的 0
-    for (unsigned char base = 2; base <= 16; base++) {
-        EXPECT_STREQ(nva_uitoa(0u, buffer, base, NVA_FALSE), "0");
-        EXPECT_STREQ(nva_uitoa(0u, buffer, base, NVA_TRUE), "0");
+    for (unsigned char i = 2; i <= 16; i++) {
+        nva_NumToStringAttr attr{.base = i, .upper_case = NVA_TRUE};
+        unsigned int width;
+        EXPECT_STREQ(nva_itoa(0U, buffer, &attr, &width), "0");
+        EXPECT_EQ(width, 1);
+
+        attr.upper_case = NVA_FALSE;
+        EXPECT_STREQ(nva_itoa(0U, buffer, &attr, &width), "0");
+        EXPECT_EQ(width, 1);
     }
 
+    nva_NumToStringAttr attr{.base = 10, .upper_case = NVA_FALSE};
+    unsigned int width;
+
     // 10进制常规数
-    EXPECT_STREQ(nva_uitoa(1u, buffer, 10, NVA_FALSE), "1");
-    EXPECT_STREQ(nva_uitoa(12345u, buffer, 10, NVA_FALSE), "12345");
-    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 10, NVA_FALSE), "4294967295");  // UINT32_MAX
+    EXPECT_STREQ(nva_uitoa(1u, buffer, &attr, &width), "1");
+    EXPECT_EQ(width, 1);
+    EXPECT_STREQ(nva_uitoa(12345u, buffer, &attr, &width), "12345");
+    EXPECT_EQ(width, 5);
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, &attr, &width), "4294967295");
+    EXPECT_EQ(width, 10);
 
     // 16进制大小写
-    EXPECT_STREQ(nva_uitoa(0xF2u, buffer, 16, NVA_FALSE), "f2");
-    EXPECT_STREQ(nva_uitoa(0xDFu, buffer, 16, NVA_FALSE), "df");
-    EXPECT_STREQ(nva_uitoa(0xF2u, buffer, 16, NVA_TRUE), "F2");
-    EXPECT_STREQ(nva_uitoa(0xDFu, buffer, 16, NVA_TRUE), "DF");
-    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 16, NVA_TRUE), "FFFFFFFF");
-    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 16, NVA_FALSE), "ffffffff");
+    attr = {.base = 16, .upper_case = NVA_FALSE};
+    EXPECT_STREQ(nva_uitoa(0xF2u, buffer, &attr, &width), "f2");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_uitoa(0xDFu, buffer, &attr, &width), "df");
+    EXPECT_EQ(width, 2);
+    attr.upper_case = NVA_TRUE;
+    EXPECT_STREQ(nva_uitoa(0xF2u, buffer, &attr, &width), "F2");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_uitoa(0xDFu, buffer, &attr, &width), "DF");
+    EXPECT_EQ(width, 2);
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, &attr, &width), "FFFFFFFF");
+    EXPECT_EQ(width, 8);
+    attr.upper_case = NVA_FALSE;
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, &attr, &width), "ffffffff");
+    EXPECT_EQ(width, 8);
 
     // 2进制
-    EXPECT_STREQ(nva_uitoa(1u, buffer, 2, NVA_FALSE), "1");
-    EXPECT_STREQ(nva_uitoa(12345u, buffer, 2, NVA_FALSE), "11000000111001");
-    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 2, NVA_FALSE), "11111111111111111111111111111111");
+    attr = {.base = 2, .upper_case = NVA_FALSE};
+    EXPECT_STREQ(nva_uitoa(1u, buffer, &attr, &width), "1");
+    EXPECT_EQ(width, 1);
+    EXPECT_STREQ(nva_uitoa(12345u, buffer, &attr, &width), "11000000111001");
+    EXPECT_EQ(width, 14);
+    constexpr const auto uint32_max_str = "11111111111111111111111111111111";
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, &attr, &width), uint32_max_str);
+    EXPECT_EQ(width, std::string_view{uint32_max_str}.length());
 
     // 8进制
-    EXPECT_STREQ(nva_uitoa(12345u, buffer, 8, NVA_FALSE), "30071");
-    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, 8, NVA_FALSE), "37777777777");
+    attr = {.base = 8, .upper_case = NVA_FALSE};
+    EXPECT_STREQ(nva_uitoa(12345u, buffer, &attr, &width), "30071");
+    EXPECT_EQ(width, std::string_view{"30071"}.length());
+    EXPECT_STREQ(nva_uitoa(4294967295u, buffer, &attr, &width), "37777777777");
+    EXPECT_EQ(width, std::string_view{"37777777777"}.length());
 
     // 边界值
-    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, 10, NVA_FALSE), "4294967295");
-    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, 16, NVA_TRUE), "FFFFFFFF");
-    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, 2, NVA_FALSE), "11111111111111111111111111111111");
+    attr = {.base = 10, .upper_case = false};
+    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, &attr, &width), "4294967295");
+    EXPECT_EQ(width, std::string_view{"4294967295"}.length());
+    attr = {.base = 16, .upper_case = NVA_TRUE};
+    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, &attr, &width), "FFFFFFFF");
+    EXPECT_EQ(width, std::string_view{"FFFFFFFF"}.length());
+    attr = {.base = 2, .upper_case = false};
+    EXPECT_STREQ(nva_uitoa(UINT_MAX, buffer, &attr, &width), "11111111111111111111111111111111");
+    EXPECT_EQ(width, std::string_view{"11111111111111111111111111111111"}.length());
 }
 
 TEST(StringTest, nva_gcvt)
