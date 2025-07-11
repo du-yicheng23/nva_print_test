@@ -24,6 +24,7 @@ target_include_directories(nva_print INTERFACE ./nva_user_option/)
 add_executable(${PROJECT_NAME}
     string_test.cpp
     stack_test.cpp
+    format_test.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

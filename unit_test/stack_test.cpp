@@ -5,7 +5,7 @@
  * @brief 栈测试
  */
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 #include "nva/stack.h"
 
