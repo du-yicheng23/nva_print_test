@@ -9,10 +9,13 @@
 
 #include "nva/format.h"
 
+#include <algorithm>
+
 #define NVA_TEST_FMT(dst, format, status, expect)                      \
     do {                                                               \
         EXPECT_EQ(nva_format((dst), (format), (status)), NVA_SUCCESS); \
         EXPECT_STREQ((dst), (expect));                                 \
+        std::fill(dst, dst + std::size(dst), 0);                       \
     } while (0)
 
 TEST(FormatTest, NoneFmtTest)
@@ -29,6 +32,12 @@ TEST(FormatTest, NoneFmtTest)
 
     NVA_TEST_FMT(dst, "{{}}", NVA_START, "{}");
     NVA_TEST_FMT(dst, "std::vector vec{{1, 2, 3, 4}};", NVA_START, "std::vector vec{1, 2, 3, 4};");
+    NVA_TEST_FMT(
+        dst,
+        "std::array<std::array<int, 3>, 3> arr{{{{1, 2, 3}}, {{4, 5, 6}}, {{7, 8, 9}}}}; std::cout << arr[0][0] << "
+        "std::endl;",
+        NVA_START,
+        "std::array<std::array<int, 3>, 3> arr{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}; std::cout << arr[0][0] << std::endl;");
 }
 
 TEST(FormatTest, IntegerTest)
@@ -37,4 +46,7 @@ TEST(FormatTest, IntegerTest)
 
     NVA_TEST_FMT(dst, "{}", nva_int(123, NVA_START), "123");
     NVA_TEST_FMT(dst, "{}", nva_int(-123, NVA_START), "-123");
+
+    NVA_TEST_FMT(dst, "arr = [{}, {}, {}].\n", nva_int(1, nva_int(2, nva_int(3, NVA_START))), "arr = [1, 2, 3].\n");
+    NVA_TEST_FMT(dst, "arr = [{2}, {0}, {1}].\n", nva_int(1, nva_int(2, nva_int(3, NVA_START))), "arr = [3, 1, 2].\n");
 }
