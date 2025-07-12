@@ -10,7 +10,31 @@
 #include "nva/string.h"
 
 #include <string_view>
+#include <array>
 #include <climits>
+#include <cstring>
+#include <iostream>
+#include <string>
+
+template<typename Type, std::size_t size>
+std::string printArray(const std::array<Type, size>& arr)
+{
+    std::string str{};
+
+    str += "[";
+
+    for (auto it = arr.begin(); it < arr.end(); ++it) {
+        str.push_back(*it + '0');
+
+        if (it != arr.end() - 1) {
+            str += ", ";
+        }
+    }
+
+    str += "]";
+
+    return str;
+}
 
 TEST(StringTest, nva_strlen)
 {
@@ -115,6 +139,24 @@ TEST(StringTest, nva_memcpy)
         }
     }
     EXPECT_TRUE(is_equal) << "The uchar arrays are not equal after memcpy.";
+}
+
+TEST(StringTest, nva_memmove)
+{
+    std::array<int, 10> arr{1, 2, 3, 4, 5, 0, 0, 0, 0, 0};
+    EXPECT_EQ(nva_memmove(&arr[3], &arr[0], 5 * sizeof(int)), &arr[3]);
+
+    std::array<int, 10> arr_1{1, 2, 3, 4, 5, 0, 0, 0, 0, 0};
+    std::memmove(&arr_1[3], &arr_1[0], 5 * sizeof(int));
+    EXPECT_TRUE(arr == arr_1) << "arr_1 = " << printArray(arr_1) << "; arr = " << printArray(arr);
+
+    EXPECT_EQ(nva_memmove(&arr[0], &arr[3], 5 * sizeof(int)), &arr[0]);
+    std::memmove(&arr_1[0], &arr_1[3], 5 * sizeof(int));
+    EXPECT_TRUE(arr == arr_1) << "arr_1 = " << printArray(arr_1) << "; arr = " << printArray(arr);
+
+    EXPECT_EQ(nva_memmove(&arr[6], &arr[0], 4 * sizeof(int)), &arr[6]);
+    std::memmove(&arr_1[6], &arr_1[0], 4 * sizeof(int));
+    EXPECT_TRUE(arr == arr_1) << "arr_1 = " << printArray(arr_1) << "; arr = " << printArray(arr);
 }
 
 TEST(StringTest, nva_atoi)
