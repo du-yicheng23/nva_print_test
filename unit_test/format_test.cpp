@@ -49,4 +49,16 @@ TEST(FormatTest, IntegerTest)
 
     NVA_TEST_FMT(dst, "arr = [{}, {}, {}].\n", nva_int(1, nva_int(2, nva_int(3, NVA_START))), "arr = [1, 2, 3].\n");
     NVA_TEST_FMT(dst, "arr = [{2}, {0}, {1}].\n", nva_int(1, nva_int(2, nva_int(3, NVA_START))), "arr = [3, 1, 2].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<d}, {0:<3d}, {1:<#5}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3, 1  , 2    ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<.5d}, {0:*<3.3d}, {1:<#5.4}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3, 1**, 2    ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<.5d}, {0::<3.3d}, {1:#<#5.4}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3, 1::, 2####].\n");
 }
