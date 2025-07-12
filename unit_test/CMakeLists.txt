@@ -25,6 +25,7 @@ add_executable(${PROJECT_NAME}
     string_test.cpp
     stack_test.cpp
     format_test.cpp
+    nva_memcpy_test.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
