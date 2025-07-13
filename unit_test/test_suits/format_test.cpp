@@ -69,6 +69,10 @@ TEST(FormatTest, IntegerTest)
                      "arr = [{2:<.5d}, {0:*<3.3d}, {1:<#5.4}].\n",
                      nva::add(1, nva::add(2, nva::add(3, NVA_START))),
                      "arr = [3, 1**, 2    ].\n");
+    NVA_TEST_FMT_CPP(dst,
+                     "arr = [{2:<.5d}, {0:*<3.3d}, {1:<#5.4}].\n",
+                     nva::add(123, nva::add(28510, nva::add(32, NVA_START))),
+                     "arr = [32, 123, 28510].\n");
 
     NVA_TEST_FMT(dst,
                  "arr = [{2:d}, {0:3d}, {1:#5}].\n",
@@ -78,4 +82,25 @@ TEST(FormatTest, IntegerTest)
                  "arr = [{2:>.5d}, {0:*>3.3d}, {1::>#5.4}].\n",
                  nva_int(1, nva_int(2, nva_int(3, NVA_START))),
                  "arr = [3, **1, ::::2].\n");
+    NVA_TEST_FMT_CPP(dst,
+                     "arr = [{2:>.5d}, {0:*>3.3d}, {1:>#5.4}].\n",
+                     nva::add(123, nva::add(28510, nva::add(32, NVA_START))),
+                     "arr = [32, 123, 28510].\n");
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^d}, {0:^3d}, {1:^#5}].\n",
+                 nva_int(1, nva_int(2, nva_int(378512, NVA_START))),
+                 "arr = [378512,  1 ,   2  ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^.5d}, {0:*^3.3d}, {1::^#5.4}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3, *1*, ::2::].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^.5d}, {0:*^3.3d}, {1::^#5.4}].\n",
+                 nva_int(12, nva_int(27, nva_int(3, NVA_START))),
+                 "arr = [3, 12*, :27::].\n");
+    NVA_TEST_FMT_CPP(dst,
+                     "arr = [{2:^.5d}, {0:*^3.3d}, {1:^#5.4}].\n",
+                     nva::add(123, nva::add(28510, nva::add(32, NVA_START))),
+                     "arr = [32, 123, 28510].\n");
 }
