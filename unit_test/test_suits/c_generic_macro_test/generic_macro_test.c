@@ -101,7 +101,7 @@ MU_TEST(IntegerTest)
                  "arr = [32, 123, 28510].\n");
 }
 
-MU_TEST_SUITE(GenericMacroTest)
+MU_TEST_SUITE(SameFromFormatTest)
 {
     MU_RUN_TEST(mu_test);
     MU_RUN_TEST(NoneFmtTest);
@@ -112,7 +112,7 @@ int generic_macro_test_main(void)
 {
     printf("munit messages:\n");
 
-    MU_RUN_SUITE(GenericMacroTest);
+    MU_RUN_SUITE(SameFromFormatTest);
 
     MU_REPORT();
 
