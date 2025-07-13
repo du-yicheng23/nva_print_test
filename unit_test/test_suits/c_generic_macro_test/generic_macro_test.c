@@ -12,8 +12,8 @@
 
 #include "nva/format.h"
 
-#define STR_EQ(a, b) (strcmp(a, b) == 0)
-#define EQU(a, b)    (a == b)
+#define STR_EQ(a, b) (strcmp((a), (b)) == 0)
+#define EQU(a, b)    ((a) == (b))
 
 #define NVA_TEST_FMT(dst, format, status, expect)                                       \
     do {                                                                                \
