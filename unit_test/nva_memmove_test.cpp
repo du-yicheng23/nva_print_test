@@ -5,21 +5,25 @@
  * @brief 对 nva_memmove 更详细的测试
  */
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
+
 #include <cstring>
 #include <cstdint>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 #include "nva/string.h"
 
-#define MEMMOVE std::memmove
+#define MEMMOVE nva_memmove
 
-static void fill_seq(uint8_t* buf, size_t len)
+static void fill_seq(uint8_t* buf, const size_t len)
 {
-    for (size_t i = 0; i < len; ++i) buf[i] = static_cast<uint8_t>(i & 0xFF);
+    for (size_t i = 0; i < len; ++i) {
+        buf[i] = static_cast<uint8_t>(i & 0xFF);
+    }
 }
-static bool eq(const uint8_t* a, const uint8_t* b, size_t n)
+static bool eq(const uint8_t* a, const uint8_t* b, const size_t n)
 {
     return std::memcmp(a, b, n) == 0;
 }
@@ -282,18 +286,15 @@ TEST_F(MemmoveTest, SamePtr)
 }
 TEST_F(MemmoveTest, NullDstZeroLen)
 {
-    MEMMOVE(nullptr, data(), 0);
-    SUCCEED();
+    EXPECT_NO_FATAL_FAILURE(MEMMOVE(nullptr, data(), 0));
 }
 TEST_F(MemmoveTest, NullSrcZeroLen)
 {
-    MEMMOVE(data(), nullptr, 0);
-    SUCCEED();
+    EXPECT_NO_FATAL_FAILURE(MEMMOVE(data(), nullptr, 0));
 }
 TEST_F(MemmoveTest, NullBothZeroLen)
 {
-    MEMMOVE(nullptr, nullptr, 0);
-    SUCCEED();
+    EXPECT_NO_FATAL_FAILURE(MEMMOVE(nullptr, nullptr, 0));
 }
 TEST_F(MemmoveTest, NullDstNonZero)
 {
@@ -302,33 +303,48 @@ TEST_F(MemmoveTest, NullDstNonZero)
 
 /* 96~100：随机组合（长度、偏移、重叠方向）                    */
 TEST_F(MemmoveTest, Random1000)
-{  // todo 待修改
+{
     for (int i = 0; i < 1000; ++i) {
+        /* NOLINTBEGIN(*-msc50-cpp) */
         const size_t len = rand() % 4096 + 1;
         const size_t off = rand() % 16;
         const bool fwd = rand() % 2;
+        /* NOLINTEND(*-msc50-cpp) */
 
         /* 用两块独立区域：src 不会被破坏 */
         std::vector<uint8_t> src(len + off + 16);
         std::vector<uint8_t> dst(len + off + 16);
-        fill_seq(src.data(), src.size());
+
+        const auto value_origin = src.size();
+
+        fill_seq(src.data(), value_origin);
+
+        const auto& src_origin = src;
+
+        std::vector<uint8_t> golden = dst;
 
         /* 生成 golden：先按方向拷贝到 dst */
-        if (fwd)
-            std::memcpy(dst.data(), src.data() + off, len);
-        else
-            std::memcpy(dst.data() + off, src.data(), len);
+        if (fwd) {
+            std::memmove(golden.data(), src_origin.data() + off, len);
+        }
+        else {
+            std::memmove(golden.data() + off, src_origin.data(), len);
+        }
 
         /* 在 dst 上执行 memmove（重叠场景） */
-        if (fwd)
-            MEMMOVE(dst.data(), dst.data() + off, len);
-        else
-            MEMMOVE(dst.data() + off, dst.data(), len);
+        if (fwd) {
+            MEMMOVE(dst.data(), src_origin.data() + off, len);
+        }
+        else {
+            MEMMOVE(dst.data() + off, src_origin.data(), len);
+        }
 
         /* 与 golden 比较 */
-        if (fwd)
-            EXPECT_TRUE(eq(dst.data(), src.data() + off, len));
-        else
-            EXPECT_TRUE(eq(dst.data() + off, src.data(), len));
+        if (fwd) {
+            EXPECT_TRUE(eq(dst.data(), golden.data(), len));
+        }
+        else {
+            EXPECT_TRUE(eq(dst.data(), golden.data(), len));
+        }
     }
 }

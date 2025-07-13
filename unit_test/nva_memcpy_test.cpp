@@ -5,11 +5,14 @@
  * @brief 对 nva_memcpy 更详细的测试
  */
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
+
 #include <cstring>
 #include <cstdint>
 #include <vector>
 #include <algorithm>
+
+#include "gtest_extend_message_types.hpp"
 
 #include "nva/string.h"
 
@@ -33,8 +36,8 @@ class MemcpyTest : public ::testing::Test
 {
 protected:
     static constexpr size_t kMax = 4096;
-    uint8_t src[kMax];
-    uint8_t dst[kMax];
+    uint8_t src[kMax]{};
+    uint8_t dst[kMax]{};
 
     void SetUp() override
     {
@@ -148,25 +151,22 @@ TEST_F(MemcpyTest, Medium2048)
     EXPECT_TRUE(buffers_equal(dst, src, 2048));
 }
 
-/* 21~30：重叠检测（memcpy 本身不保证支持，但需保持一致行为）   */
+/* 21~30：重叠检测（memcpy 本身不保证支持，但不能导致崩溃）   */
 TEST_F(MemcpyTest, OverlapSrcBeforeDst)
 {
     std::memset(src, 0x55, 100);
     std::memset(src + 50, 0xAA, 50);  // src[50:99] = 0xAA
-    MEMCPY(dst + 10, src, 100);       // 非重叠
-    EXPECT_TRUE(buffers_equal(dst + 10, src, 100));
+    EXPECT_NO_FATAL_FAILURE(MEMCPY(src + 10, src, 100));
 }
 TEST_F(MemcpyTest, OverlapDstBeforeSrc)
 {
     std::memset(src, 0xCC, 200);
-    MEMCPY(dst, src + 100, 100);  // 非重叠
-    EXPECT_TRUE(buffers_equal(dst, src + 100, 100));
+    EXPECT_NO_FATAL_FAILURE(MEMCPY(src, src + 17, 100));  // 非重叠
 }
 TEST_F(MemcpyTest, SameSrcDst)
 {
     std::memset(src, 0x77, 256);
-    MEMCPY(src, src, 256);  // 标准未定义，但通常不崩溃
-    SUCCEED();              // 只要无崩溃即可
+    EXPECT_NO_FATAL_FAILURE(MEMCPY(src, src, 256));
 }
 TEST_F(MemcpyTest, OverlapExactPage)
 {
@@ -179,8 +179,7 @@ TEST_F(MemcpyTest, OverlapOneByteShift)
 {
     std::vector<uint8_t> buf(1024);
     fill_seq(buf.data(), 1024);
-    MEMCPY(buf.data() + 1, buf.data(), 1023);
-    EXPECT_TRUE(buffers_equal(buf.data() + 1, buf.data(), 1023));
+    EXPECT_NO_FATAL_FAILURE(MEMCPY(buf.data() + 1, buf.data(), 1023));
 }
 
 /* 26~30：对齐测试                                             */
@@ -234,6 +233,13 @@ TEST_F(MemcpyTest, NullBothZeroLen)
     EXPECT_NO_FATAL_FAILURE(MEMCPY(nullptr, nullptr, 0));
 }
 
+// 可能崩溃的情况
+TEST_F(MemcpyTest, NullBothWithLen)
+{
+    EXPECT_DEATH(MEMCPY(nullptr, nullptr, 1), "");
+    SUCCEED();
+}
+
 /* 36~40：单字节、单字、单双字边界值                           */
 TEST_F(MemcpyTest, BoundaryU8)
 {
@@ -268,6 +274,48 @@ TEST_F(MemcpyTest, Boundary128Bit)
     EXPECT_TRUE(buffers_equal(a, b, 16));
 }
 
+/* NOLINTBEGIN(*-msc50-cpp) */
+
+/* 41~45：随机长度随机对齐                                     */
+TEST_F(MemcpyTest, RandomTiny)
+{
+    for (int i = 0; i < 1000; ++i) {
+        const size_t len = rand() % 64;
+        const size_t src_off = rand() % 8;
+        const size_t dst_off = rand() % 8;
+
+        const auto& src_origin = src;
+
+        std::array<uint8_t, kMax> golden{};
+
+        std::memcpy(golden.data() + dst_off, src_origin + src_off, len);
+
+        MEMCPY(dst + dst_off, src_origin + src_off, len);
+        EXPECT_TRUE(buffers_equal(dst + dst_off, golden.data() + dst_off, len));
+    }
+}
+TEST_F(MemcpyTest, RandomMedium)
+{
+    for (int i = 0; i < 1000; ++i) {
+        const size_t len = rand() % (4096 - 16);
+        const size_t src_off = rand() % 16;
+        const size_t dst_off = rand() % 16;
+
+        const auto& src_origin = src;
+
+        std::array<uint8_t, kMax> golden{};
+
+        std::memcpy(golden.data() + dst_off, src_origin + src_off, len);
+
+        MEMCPY(dst + dst_off, src_origin + src_off, len);
+        EXPECT_TRUE(buffers_equal(dst + dst_off, golden.data() + dst_off, len))
+            << "len=" << len << ", src_off= " << src_off << ", dst_off=" << dst_off << "\ngolden=" << golden
+            << "\ndst=" << dst;
+    }
+}
+
+/* NOLINTEND(*-msc50-cpp) */
+
 /* 46~50：性能/压力（仅检查正确性，不真正跑性能）               */
 TEST_F(MemcpyTest, Stress1M)
 {
@@ -299,8 +347,7 @@ TEST_F(MemcpyTest, StressZeroAfterLarge)
     fill_seq(buf.data(), 4096);
     MEMCPY(buf.data() + 2048, buf.data(), 2048);
     EXPECT_TRUE(buffers_equal(buf.data() + 2048, buf.data(), 2048));
-    MEMCPY(buf.data(), buf.data() + 2048, 0);  // 零长度
-    SUCCEED();
+    EXPECT_NO_FATAL_FAILURE(MEMCPY(buf.data(), buf.data() + 2048, 0));  // 零长度
 }
 TEST_F(MemcpyTest, StressAllBytes)
 {
