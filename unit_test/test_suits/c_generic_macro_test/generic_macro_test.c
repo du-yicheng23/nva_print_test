@@ -5,7 +5,6 @@
  * @brief C 语言的 _Generic 宏测试
  */
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -13,38 +12,28 @@
 
 #include "nva/format.h"
 
-int tests_run = 0;
-
-unsigned int assert_fail_line = 0;
-volatile const char* assert_fail_file = NULL;
-
-static char msg_buffer[200] = {0};
-
 #define STR_EQ(a, b) (strcmp(a, b) == 0)
 #define EQU(a, b)    (a == b)
 
 #define NVA_TEST_FMT(dst, format, status, expect)                                       \
     do {                                                                                \
-        MU_ASSERT("not equ!", EQU(nva_format((dst), (format), (status)), NVA_SUCCESS)); \
-        MU_ASSERT("str not equ!", STR_EQ((dst), (expect)));                             \
+        mu_assert(EQU(nva_format((dst), (format), (status)), NVA_SUCCESS), "not equ!"); \
+        mu_assert_string_eq((dst), (expect));                                           \
         memset((dst), 0, NVA_COUNTOF(dst));                                             \
     } while (0)
 
-MU_TEST_SUIT(mu_test)
+MU_TEST(mu_test)
 {
-    MU_ASSERT("true is not true!", true);
-    MU_ASSERT("0 != 0", 0 == 0);
-
-    MU_SUCCEED();
+    mu_check(7 == 7);
 }
 
-MU_TEST_SUIT(NoneFmtTest)
+MU_TEST(NoneFmtTest)
 {
     char dst[100];
-    MU_ASSERT("not equ!", EQU(nva_format(dst, "No!", NVA_ERROR), NVA_FAIL));
-    MU_ASSERT("not equ!", EQU(nva_format(NULL, "No!", NVA_START), NVA_PARAM_ERROR));
-    MU_ASSERT("not equ!", EQU(nva_format(dst, NULL, NVA_START), NVA_PARAM_ERROR));
-    MU_ASSERT("not equ!", EQU(nva_format(NULL, NULL, NVA_START), NVA_PARAM_ERROR));
+    mu_assert(nva_format(dst, "No!", NVA_ERROR) == NVA_FAIL, "not equ!");
+    mu_assert(EQU(nva_format(NULL, "No!", NVA_START), NVA_PARAM_ERROR), "not equ!");
+    mu_assert(EQU(nva_format(dst, NULL, NVA_START), NVA_PARAM_ERROR), "not equ!");
+    mu_assert(EQU(nva_format(NULL, NULL, NVA_START), NVA_PARAM_ERROR), "not equ!");
 
     NVA_TEST_FMT(dst, "Hello, World!", NVA_START, "Hello, World!");
     NVA_TEST_FMT(dst, "", NVA_START, "");
@@ -57,11 +46,9 @@ MU_TEST_SUIT(NoneFmtTest)
         "std::endl;",
         NVA_START,
         "std::array<std::array<int, 3>, 3> arr{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}; std::cout << arr[0][0] << std::endl;");
-
-    MU_SUCCEED();
 }
 
-MU_TEST_SUIT(IntegerTest)
+MU_TEST(IntegerTest)
 {
     char dst[100];
 
@@ -80,24 +67,21 @@ MU_TEST_SUIT(IntegerTest)
                  "arr = [3, 1**, 2    ].\n");
 }
 
-static const char* mu__all_test_list(void)
+MU_TEST_SUITE(GenericMacroTest)
 {
-    MU_RUN_TEST_SUIT(mu_test);
-    MU_RUN_TEST_SUIT(NoneFmtTest);
-    MU_RUN_TEST_SUIT(IntegerTest);
-
-    MU_SUCCEED();
+    MU_RUN_TEST(mu_test);
+    MU_RUN_TEST(NoneFmtTest);
+    MU_RUN_TEST(IntegerTest);
 }
 
-const char* generic_macro_test_main(void)
+int generic_macro_test_main(void)
 {
-    const char* const msg = mu__all_test_list();
+    printf("munit messages:\n");
 
-    if (msg != NULL) {
-        sprintf(msg_buffer, "MU: Assert Failed at %s:%u:\n    %s", assert_fail_file, assert_fail_line, msg);
-        fprintf(stderr, "%s", msg_buffer);
-        return msg_buffer;
-    }
+    MU_RUN_SUITE(GenericMacroTest);
 
-    return NULL;
+    MU_REPORT();
+
+    printf("munit messages end.\n\n");
+    return MU_EXIT_CODE;
 }

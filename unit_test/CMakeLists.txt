@@ -33,6 +33,8 @@ add_executable(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
+    ./minunit/  # add minunit lib
+
     ./
     ./test_suits/c_generic_macro_test/
 )

@@ -7,11 +7,11 @@
 
 #include "gtest/gtest.h"
 
-extern "C" const char* generic_macro_test_main(void);
+extern "C" int generic_macro_test_main(void);
 
 TEST(CGenericMacroTest, test)
 {
     const auto msg = generic_macro_test_main();
 
-    EXPECT_EQ(msg, nullptr) << msg;
+    EXPECT_EQ(msg, 0);
 }
