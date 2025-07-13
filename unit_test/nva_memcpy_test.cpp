@@ -233,12 +233,12 @@ TEST_F(MemcpyTest, NullBothZeroLen)
     EXPECT_NO_FATAL_FAILURE(MEMCPY(nullptr, nullptr, 0));
 }
 
-// 可能崩溃的情况
-TEST_F(MemcpyTest, NullBothWithLen)
-{
-    EXPECT_DEATH(MEMCPY(nullptr, nullptr, 1), "");
-    SUCCEED();
-}
+// 可能崩溃的情况，但不能保证一定会崩溃
+// TEST_F(MemcpyTest, NullBothWithLen)
+// {
+//     EXPECT_DEATH(MEMCPY(nullptr, nullptr, 1), "");
+//     SUCCEED();
+// }
 
 /* 36~40：单字节、单字、单双字边界值                           */
 TEST_F(MemcpyTest, BoundaryU8)
