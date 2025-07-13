@@ -65,6 +65,15 @@ MU_TEST(IntegerTest)
                  "arr = [{2:<.5d}, {0:*<3.3d}, {1:<#5.4}].\n",
                  nva_add(1, nva_add(2, nva_add(3, NVA_START))),
                  "arr = [3, 1**, 2    ].\n");
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:d}, {0:3d}, {1:#5}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3,   1,     2].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:>.5d}, {0:*>3.3d}, {1::>#5.4}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3, **1, ::::2].\n");
 }
 
 MU_TEST_SUITE(GenericMacroTest)
