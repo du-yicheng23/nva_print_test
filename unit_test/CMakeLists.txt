@@ -22,11 +22,19 @@ target_compile_definitions(nva_print INTERFACE -DNVA_ADD_USER_OPTIONS)
 target_include_directories(nva_print INTERFACE ./nva_user_option/)
 
 add_executable(${PROJECT_NAME}
-    string_test.cpp
-    stack_test.cpp
-    format_test.cpp
-    nva_memcpy_test.cpp
-    nva_memmove_test.cpp
+    test_suits/string_test.cpp
+    test_suits/stack_test.cpp
+    test_suits/format_test.cpp
+    test_suits/nva_memcpy_test.cpp
+    test_suits/nva_memmove_test.cpp
+
+    test_suits/c_generic_macro_test/c_generic_macro_test.cpp
+    test_suits/c_generic_macro_test/generic_macro_test.c
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ./
+    ./test_suits/c_generic_macro_test/
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
