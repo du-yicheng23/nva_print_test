@@ -40,8 +40,7 @@ static const char* ptr_to_string(void* ptr, const uint8_t base, const bool prefi
 
     switch (base) {
     case 2:
-        strcat(fmt, (upper_case ? "B" : "b"));
-        break;
+        goto print_bindary;
     case 8:
         strcat(fmt, "o");
         break;
@@ -56,6 +55,28 @@ static const char* ptr_to_string(void* ptr, const uint8_t base, const bool prefi
     }
 
     sprintf(str, fmt, (NVA_SIZE_T)ptr);
+
+    return str;
+
+print_bindary:
+    str[0] = '\0';
+
+    if (prefix) {
+        strcat(str, (upper_case ? "0B" : "0b"));
+    }
+
+    bool is_1 = false;
+    NVA_SIZE_T mask = 0x8000000000000000ULL;
+    for (; mask != 0U; mask >>= 1) {
+        char buffer[2] = {0};
+        sprintf(buffer, "%d", ((NVA_SIZE_T)ptr & mask) ? 1 : 0);  // 按位与运算，逐一输出 n 的每一位
+        if (!is_1 && strcmp(buffer, "1") == 0) {
+            is_1 = true;
+        }
+        if (is_1) {
+            strcat(str, buffer);
+        }
+    }
 
     return str;
 }
@@ -255,7 +276,14 @@ TEST(FormatTest, StringTest)
 // 先测试辅助函数 ptr_to_string
 TEST(FormatTest, PtrTest_ptr_to_string_FuncTest)
 {
-    ASSERT_STREQ(ptr_to_string((void*)0x12345, 16, true, false), "0x12345");
+    EXPECT_STREQ(ptr_to_string((void*)0x12345, 16, true, false), "0x12345");
+    EXPECT_STREQ(ptr_to_string((void*)0x13462, 16, true, true), "0X13462");
+    EXPECT_STREQ(ptr_to_string((void*)0x13462, 16, false, true), "13462");
+    EXPECT_STREQ(ptr_to_string((void*)013462, 8, false, true), "13462");
+    EXPECT_STREQ(ptr_to_string((void*)2313462, 10, false, true), "2313462");
+    EXPECT_STREQ(ptr_to_string((void*)0x59, 2, true, true), "0B1011001");
+    EXPECT_STREQ(ptr_to_string((void*)0x59, 2, true, false), "0b1011001");
+    EXPECT_STREQ(ptr_to_string((void*)0x59, 2, false, false), "1011001");
 }
 
 TEST(FormatTest, PtrTest)
