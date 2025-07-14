@@ -105,6 +105,11 @@ TEST(FormatTest, IntegerTestBasic)
                      "arr = [{2:^.5d}, {0:*^3.3d}, {1:^#5.4}].\n",
                      nva::add(123, nva::add(28510, nva::add(32, NVA_START))),
                      "arr = [32, 123, 28510].\n");
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{:5d}, {:08d}, {:#07x}].\n",
+                 nva_int(123, nva_int(1456, nva_int(0x653, NVA_START))),
+                 "arr = [  123, 00001456, 0x00653].\n");
 }
 
 TEST(FormatTest, IntegerTestPlusChar)
