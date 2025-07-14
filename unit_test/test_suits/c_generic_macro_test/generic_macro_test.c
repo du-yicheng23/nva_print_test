@@ -180,6 +180,32 @@ MU_TEST(CharTest)
                  "arr = [f, m**, \t    ].\n");
 }
 
+MU_TEST(StringTest)
+{
+    char dst[500];
+
+    NVA_TEST_FMT(dst, "{}", nva_str("Hello, World!", NVA_START), "Hello, World!");
+    NVA_TEST_FMT(dst, "{}{}", nva_str("Hello, World!", nva_str("\nI\'m nva.", NVA_START)), "Hello, World!\nI\'m nva.");
+
+    NVA_TEST_FMT(dst,
+                 "12{}{}34",
+                 nva_str("Hello, World!", nva_str("\nI\'m nva.", NVA_START)),
+                 "12Hello, World!\nI\'m nva.34");
+    NVA_TEST_FMT(dst,
+                 "12{:s}{:s}34",
+                 nva_str("Hello, World!", nva_str("\nI\'m nva.", NVA_START)),
+                 "12Hello, World!\nI\'m nva.34");
+
+    NVA_TEST_FMT(dst,
+                 "12{:15}{:>12}34",
+                 nva_str("Hello, World!", nva_str("\nI\'m nva.", NVA_START)),
+                 "12Hello, World!     \nI\'m nva.34");
+    NVA_TEST_FMT(dst,
+                 "12{:<15}{:>12}34",
+                 nva_str("Hello, World!", nva_str("\nI\'m nva.", NVA_START)),
+                 "12Hello, World!     \nI\'m nva.34");
+}
+
 MU_TEST_SUITE(SameFromFormatTest)
 {
     MU_RUN_TEST(mu_test);
@@ -187,6 +213,7 @@ MU_TEST_SUITE(SameFromFormatTest)
     MU_RUN_TEST(IntegerTestBasic);
     MU_RUN_TEST(IntegerTestPlusChar);
     MU_RUN_TEST(CharTest);
+    MU_RUN_TEST(StringTest);
 }
 
 int generic_macro_test_main(void)

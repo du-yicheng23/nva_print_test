@@ -10,6 +10,8 @@
 #include "nva/format.h"
 
 #include <algorithm>
+#include <cstdio>
+#include <cstring>
 
 #define NVA_TEST_FMT(dst, format, status, expect)                      \
     do {                                                               \
@@ -24,6 +26,39 @@
         EXPECT_STREQ((dst), (expect));                               \
         std::fill(dst, dst + std::size(dst), 0);                     \
     } while (0)
+
+static const char* ptr_to_string(void* ptr, const uint8_t base, const bool prefix, const bool upper_case)
+{
+    static char str[20] = {0};
+    char fmt[10] = "%";
+
+    if (prefix) {
+        strcat(fmt, "#");
+    }
+
+    strcat(fmt, "z");
+
+    switch (base) {
+    case 2:
+        strcat(fmt, (upper_case ? "B" : "b"));
+        break;
+    case 8:
+        strcat(fmt, "o");
+        break;
+    case 10:
+        strcat(fmt, "u");
+        break;
+    case 16:
+        strcat(fmt, (upper_case ? "X" : "x"));
+        break;
+    default:
+        break;
+    }
+
+    sprintf(str, fmt, (NVA_SIZE_T)ptr);
+
+    return str;
+}
 
 TEST(FormatTest, NoneFmtTest)
 {
@@ -215,4 +250,20 @@ TEST(FormatTest, StringTest)
                  "12{:<15}{:>12}34",
                  nva_str("Hello, World!", nva_str("\nI\'m nva.", NVA_START)),
                  "12Hello, World!     \nI\'m nva.34");
+}
+
+// 先测试辅助函数 ptr_to_string
+TEST(FormatTest, PtrTest_ptr_to_string_FuncTest)
+{
+    ASSERT_STREQ(ptr_to_string((void*)0x12345, 16, true, false), "0x12345");
+}
+
+TEST(FormatTest, PtrTest)
+{
+    char dst[100] = {0};
+
+    int a;
+    int* p = &a;
+
+    NVA_TEST_FMT(dst, "{}", nva_ptr(p, NVA_START), ptr_to_string(p, 16, true, false));
 }
