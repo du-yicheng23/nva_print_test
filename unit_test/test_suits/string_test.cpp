@@ -316,76 +316,82 @@ TEST(StringTest, nva_gcvt)
 {
     char buffer[50];
 
-    // 测试 gcvt 函数
-    EXPECT_STREQ(nva_gcvt(0.0, 6, buffer), "0.000000");
-    EXPECT_STREQ(nva_gcvt(-0.0, 6, buffer), "0.000000");
-    EXPECT_STREQ(nva_gcvt(123.456, 6, buffer), "123.456000");
-    EXPECT_STREQ(nva_gcvt(-123.456, 6, buffer), "-123.456000");
-    EXPECT_STREQ(nva_gcvt(1.23456e10, 6, buffer), "12345600000.000000");
-    EXPECT_STREQ(nva_gcvt(-1.23456e10, 6, buffer), "-12345600000.000000");
-    EXPECT_STREQ(nva_gcvt(3.14159265358979323846, 6, buffer), "3.141593");
-    EXPECT_STREQ(nva_gcvt(-3.14159265358979323846, 6, buffer), "-3.141593");
-    EXPECT_STREQ(nva_gcvt(765432123.456, 3, buffer), "765432123.456");
-    EXPECT_STREQ(nva_gcvt(-765432123.456, 3, buffer), "-765432123.456");
-    EXPECT_STREQ(nva_gcvt(2.61734536, 2, buffer), "2.62");
-    EXPECT_STREQ(nva_gcvt(-2.61734536, 2, buffer), "-2.62");
-    EXPECT_STREQ(nva_gcvt(2.61734536, 5, buffer), "2.61734");
-    EXPECT_STREQ(nva_gcvt(-2.61734536, 5, buffer), "-2.61734");
-    EXPECT_STREQ(nva_gcvt(2.61737536, 5, buffer), "2.61738");
-    EXPECT_STREQ(nva_gcvt(-2.61737536, 5, buffer), "-2.61738");
+#define NVA_GCVT_EQ(func, expect_str)                           \
+    do {                                                        \
+        EXPECT_EQ((func), std::string_view(expect_str).size()); \
+        EXPECT_STREQ(buffer, (expect_str));                     \
+    } while (0)
 
-    EXPECT_STREQ(nva_gcvt(0.0f, 6, buffer), "0.000000");
-    EXPECT_STREQ(nva_gcvt(-0.0f, 6, buffer), "0.000000");
-    EXPECT_STREQ(nva_gcvt(123.456f, 4, buffer), "123.4560");
-    EXPECT_STREQ(nva_gcvt(-123.456f, 4, buffer), "-123.4560");
-    EXPECT_STREQ(nva_gcvt(1.23456e10f, 6, buffer), "12345600000.000000");
-    EXPECT_STREQ(nva_gcvt(-1.23456e10f, 6, buffer), "-12345600000.000000");
-    EXPECT_STREQ(nva_gcvt(3.14159265358979323846f, 6, buffer), "3.141593");
-    EXPECT_STREQ(nva_gcvt(-3.14159265358979323846f, 6, buffer), "-3.141593");
-    EXPECT_STREQ(nva_gcvt(2123.456f, 3, buffer), "2123.456");
-    EXPECT_STREQ(nva_gcvt(-2123.456f, 3, buffer), "-2123.456");
-    EXPECT_STREQ(nva_gcvt(2.61734536f, 2, buffer), "2.62");
-    EXPECT_STREQ(nva_gcvt(-2.61734536f, 2, buffer), "-2.62");
-    EXPECT_STREQ(nva_gcvt(2.61734536f, 5, buffer), "2.61734");
-    EXPECT_STREQ(nva_gcvt(-2.61734536f, 5, buffer), "-2.61734");
-    EXPECT_STREQ(nva_gcvt(2.61737536f, 5, buffer), "2.61738");
-    EXPECT_STREQ(nva_gcvt(-2.61737536f, 5, buffer), "-2.61738");
+    // 测试 gcvt 函数
+    NVA_GCVT_EQ(nva_gcvt(0.0, 6, buffer), "0.000000");
+    NVA_GCVT_EQ(nva_gcvt(-0.0, 6, buffer), "0.000000");
+    NVA_GCVT_EQ(nva_gcvt(123.456, 6, buffer), "123.456000");
+    NVA_GCVT_EQ(nva_gcvt(-123.456, 6, buffer), "-123.456000");
+    NVA_GCVT_EQ(nva_gcvt(1.23456e10, 6, buffer), "12345600000.000000");
+    NVA_GCVT_EQ(nva_gcvt(-1.23456e10, 6, buffer), "-12345600000.000000");
+    NVA_GCVT_EQ(nva_gcvt(3.14159265358979323846, 6, buffer), "3.141593");
+    NVA_GCVT_EQ(nva_gcvt(-3.14159265358979323846, 6, buffer), "-3.141593");
+    NVA_GCVT_EQ(nva_gcvt(765432123.456, 3, buffer), "765432123.456");
+    NVA_GCVT_EQ(nva_gcvt(-765432123.456, 3, buffer), "-765432123.456");
+    NVA_GCVT_EQ(nva_gcvt(2.61734536, 2, buffer), "2.62");
+    NVA_GCVT_EQ(nva_gcvt(-2.61734536, 2, buffer), "-2.62");
+    NVA_GCVT_EQ(nva_gcvt(2.61734536, 5, buffer), "2.61734");
+    NVA_GCVT_EQ(nva_gcvt(-2.61734536, 5, buffer), "-2.61734");
+    NVA_GCVT_EQ(nva_gcvt(2.61737536, 5, buffer), "2.61738");
+    NVA_GCVT_EQ(nva_gcvt(-2.61737536, 5, buffer), "-2.61738");
+
+    NVA_GCVT_EQ(nva_gcvt(0.0f, 6, buffer), "0.000000");
+    NVA_GCVT_EQ(nva_gcvt(-0.0f, 6, buffer), "0.000000");
+    NVA_GCVT_EQ(nva_gcvt(123.456f, 4, buffer), "123.4560");
+    NVA_GCVT_EQ(nva_gcvt(-123.456f, 4, buffer), "-123.4560");
+    NVA_GCVT_EQ(nva_gcvt(1.23456e10f, 6, buffer), "12345600000.000000");
+    NVA_GCVT_EQ(nva_gcvt(-1.23456e10f, 6, buffer), "-12345600000.000000");
+    NVA_GCVT_EQ(nva_gcvt(3.14159265358979323846f, 6, buffer), "3.141593");
+    NVA_GCVT_EQ(nva_gcvt(-3.14159265358979323846f, 6, buffer), "-3.141593");
+    NVA_GCVT_EQ(nva_gcvt(2123.456f, 3, buffer), "2123.456");
+    NVA_GCVT_EQ(nva_gcvt(-2123.456f, 3, buffer), "-2123.456");
+    NVA_GCVT_EQ(nva_gcvt(2.61734536f, 2, buffer), "2.62");
+    NVA_GCVT_EQ(nva_gcvt(-2.61734536f, 2, buffer), "-2.62");
+    NVA_GCVT_EQ(nva_gcvt(2.61734536f, 5, buffer), "2.61734");
+    NVA_GCVT_EQ(nva_gcvt(-2.61734536f, 5, buffer), "-2.61734");
+    NVA_GCVT_EQ(nva_gcvt(2.61737536f, 5, buffer), "2.61738");
+    NVA_GCVT_EQ(nva_gcvt(-2.61737536f, 5, buffer), "-2.61738");
 
     // 测试精度为0的情况
-    EXPECT_STREQ(nva_gcvt(123.456, 0, buffer), "123");
-    EXPECT_STREQ(nva_gcvt(-123.456, 0, buffer), "-123");
-    EXPECT_STREQ(nva_gcvt(0.0, 0, buffer), "0");
-    EXPECT_STREQ(nva_gcvt(-0.0, 0, buffer), "0");
-    EXPECT_STREQ(nva_gcvt(123.656, 0, buffer), "124");
-    EXPECT_STREQ(nva_gcvt(123.556, 0, buffer), "124");
-    EXPECT_STREQ(nva_gcvt(124.556, 0, buffer), "124");
-    EXPECT_STREQ(nva_gcvt(-124.556, 0, buffer), "-124");
-    EXPECT_STREQ(nva_gcvt(-123.656, 0, buffer), "-124");
-    EXPECT_STREQ(nva_gcvt(-123.556, 0, buffer), "-124");
+    NVA_GCVT_EQ(nva_gcvt(123.456, 0, buffer), "123");
+    NVA_GCVT_EQ(nva_gcvt(-123.456, 0, buffer), "-123");
+    NVA_GCVT_EQ(nva_gcvt(0.0, 0, buffer), "0");
+    NVA_GCVT_EQ(nva_gcvt(-0.0, 0, buffer), "0");
+    NVA_GCVT_EQ(nva_gcvt(123.656, 0, buffer), "124");
+    NVA_GCVT_EQ(nva_gcvt(123.556, 0, buffer), "124");
+    NVA_GCVT_EQ(nva_gcvt(124.556, 0, buffer), "124");
+    NVA_GCVT_EQ(nva_gcvt(-124.556, 0, buffer), "-124");
+    NVA_GCVT_EQ(nva_gcvt(-123.656, 0, buffer), "-124");
+    NVA_GCVT_EQ(nva_gcvt(-123.556, 0, buffer), "-124");
 
-    EXPECT_STREQ(nva_gcvt(123.456f, 0, buffer), "123");
-    EXPECT_STREQ(nva_gcvt(-123.456f, 0, buffer), "-123");
-    EXPECT_STREQ(nva_gcvt(0.0f, 0, buffer), "0");
-    EXPECT_STREQ(nva_gcvt(-0.0f, 0, buffer), "0");
-    EXPECT_STREQ(nva_gcvt(123.656f, 0, buffer), "124");
-    EXPECT_STREQ(nva_gcvt(123.556f, 0, buffer), "124");
-    EXPECT_STREQ(nva_gcvt(124.556f, 0, buffer), "124");
-    EXPECT_STREQ(nva_gcvt(-124.556f, 0, buffer), "-124");
-    EXPECT_STREQ(nva_gcvt(-123.656f, 0, buffer), "-124");
-    EXPECT_STREQ(nva_gcvt(-123.556f, 0, buffer), "-124");
+    NVA_GCVT_EQ(nva_gcvt(123.456f, 0, buffer), "123");
+    NVA_GCVT_EQ(nva_gcvt(-123.456f, 0, buffer), "-123");
+    NVA_GCVT_EQ(nva_gcvt(0.0f, 0, buffer), "0");
+    NVA_GCVT_EQ(nva_gcvt(-0.0f, 0, buffer), "0");
+    NVA_GCVT_EQ(nva_gcvt(123.656f, 0, buffer), "124");
+    NVA_GCVT_EQ(nva_gcvt(123.556f, 0, buffer), "124");
+    NVA_GCVT_EQ(nva_gcvt(124.556f, 0, buffer), "124");
+    NVA_GCVT_EQ(nva_gcvt(-124.556f, 0, buffer), "-124");
+    NVA_GCVT_EQ(nva_gcvt(-123.656f, 0, buffer), "-124");
+    NVA_GCVT_EQ(nva_gcvt(-123.556f, 0, buffer), "-124");
 
     // 测试精度为1的情况
-    EXPECT_STREQ(nva_gcvt(123.456, 1, buffer), "123.4");
-    EXPECT_STREQ(nva_gcvt(-123.456, 1, buffer), "-123.4");
-    EXPECT_STREQ(nva_gcvt(123.556, 1, buffer), "123.6");
-    EXPECT_STREQ(nva_gcvt(-123.556, 1, buffer), "-123.6");
-    EXPECT_STREQ(nva_gcvt(0.0, 1, buffer), "0.0");
-    EXPECT_STREQ(nva_gcvt(-0.0, 1, buffer), "0.0");
+    NVA_GCVT_EQ(nva_gcvt(123.456, 1, buffer), "123.4");
+    NVA_GCVT_EQ(nva_gcvt(-123.456, 1, buffer), "-123.4");
+    NVA_GCVT_EQ(nva_gcvt(123.556, 1, buffer), "123.6");
+    NVA_GCVT_EQ(nva_gcvt(-123.556, 1, buffer), "-123.6");
+    NVA_GCVT_EQ(nva_gcvt(0.0, 1, buffer), "0.0");
+    NVA_GCVT_EQ(nva_gcvt(-0.0, 1, buffer), "0.0");
 
-    EXPECT_STREQ(nva_gcvt(123.456f, 1, buffer), "123.4");
-    EXPECT_STREQ(nva_gcvt(-123.456f, 1, buffer), "-123.4");
-    EXPECT_STREQ(nva_gcvt(123.556f, 1, buffer), "123.6");
-    EXPECT_STREQ(nva_gcvt(-123.556f, 1, buffer), "-123.6");
-    EXPECT_STREQ(nva_gcvt(0.0f, 1, buffer), "0.0");
-    EXPECT_STREQ(nva_gcvt(-0.0f, 1, buffer), "0.0");
+    NVA_GCVT_EQ(nva_gcvt(123.456f, 1, buffer), "123.4");
+    NVA_GCVT_EQ(nva_gcvt(-123.456f, 1, buffer), "-123.4");
+    NVA_GCVT_EQ(nva_gcvt(123.556f, 1, buffer), "123.6");
+    NVA_GCVT_EQ(nva_gcvt(-123.556f, 1, buffer), "-123.6");
+    NVA_GCVT_EQ(nva_gcvt(0.0f, 1, buffer), "0.0");
+    NVA_GCVT_EQ(nva_gcvt(-0.0f, 1, buffer), "0.0");
 }
