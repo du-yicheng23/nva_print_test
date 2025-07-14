@@ -153,12 +153,40 @@ MU_TEST(IntegerTestPlusChar)
                  "arr = [32, 123, 28510].\n");
 }
 
+MU_TEST(CharTest)
+{
+    char dst[100];
+
+    NVA_TEST_FMT(dst, "{}", nva_char('1', NVA_START), "1");
+    NVA_TEST_FMT(dst, "{}", nva_char('d', NVA_START), "d");
+    NVA_TEST_FMT(dst, "{:+}", nva_char('h', NVA_START), "h");
+    NVA_TEST_FMT(dst, "{: c}", nva_char('J', NVA_START), "J");
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{}, {}, {}].\n",
+                 nva_char('1', nva_char('\n', nva_char('l', NVA_START))),
+                 "arr = [1, \n, l].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2}, {0}, {1}].\n",
+                 nva_char('\a', nva_char('P', nva_char('q', NVA_START))),
+                 "arr = [q, \a, P].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<d}, {0:<3d}, {1:<#5}].\n",
+                 nva_char('\\', nva_char('%', nva_char('\'', NVA_START))),
+                 "arr = [\', \\  , %    ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<.5d}, {0:*<3.3d}, {1:<#5.4}].\n",
+                 nva_char('m', nva_char('\t', nva_char('f', NVA_START))),
+                 "arr = [f, m**, \t    ].\n");
+}
+
 MU_TEST_SUITE(SameFromFormatTest)
 {
     MU_RUN_TEST(mu_test);
     MU_RUN_TEST(NoneFmtTest);
     MU_RUN_TEST(IntegerTestBasic);
     MU_RUN_TEST(IntegerTestPlusChar);
+    MU_RUN_TEST(CharTest);
 }
 
 int generic_macro_test_main(void)
