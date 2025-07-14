@@ -48,7 +48,7 @@ MU_TEST(NoneFmtTest)
         "std::array<std::array<int, 3>, 3> arr{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}; std::cout << arr[0][0] << std::endl;");
 }
 
-MU_TEST(IntegerTest)
+MU_TEST(IntegerTestBasic)
 {
     char dst[100];
 
@@ -101,11 +101,64 @@ MU_TEST(IntegerTest)
                  "arr = [32, 123, 28510].\n");
 }
 
+MU_TEST(IntegerTestPlusChar)
+{
+    char dst[100] = {0};
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<-d}, {0:<+3d}, {1:<#5}].\n",
+                 nva_int(1, nva_int(-2, nva_int(3, NVA_START))),
+                 "arr = [3, +1 , -2   ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:< .5d}, {0:*<-3.3d}, {1:<#+5.4}].\n",
+                 nva_int(1, nva_int(245, nva_int(3, NVA_START))),
+                 "arr = [ 3, 1**, +245 ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<.5d}, {0:*< 3.3d}, {1:<+#5.4}].\n",
+                 nva_add(1, nva_add(2, nva_add(3, NVA_START))),
+                 "arr = [3,  1*, +2   ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:<.5d}, {0:*<+3.3d}, {1:<#5.4}].\n",
+                 nva_add(123, nva_add(28510, nva_add(32, NVA_START))),
+                 "arr = [32, +123, 28510].\n");
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:-d}, {0:+3d}, {1:+#5}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3,  +1,    +2].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:>.5d}, {0:*> 3.3d}, {1::> #5.4}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [3, * 1, ::: 2].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:>-.5d}, {0:*>+3.3d}, {1:> #5.4}].\n",
+                 nva_add(123, nva_add(28510, nva_add(32, NVA_START))),
+                 "arr = [32, +123,  28510].\n");
+
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^+d}, {0:^+3d}, {1:^+#5}].\n",
+                 nva_int(1, nva_int(2, nva_int(378512, NVA_START))),
+                 "arr = [+378512, +1 ,  +2  ].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^ .5d}, {0:*^ 3.3d}, {1::^+#5.4}].\n",
+                 nva_int(1, nva_int(2, nva_int(3, NVA_START))),
+                 "arr = [ 3,  1*, :+2::].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^.5x}, {0:*^#3.3X}, {1::^#5.4x}].\n",
+                 nva_int(0x12, nva_int(0x27, nva_int(0x3, NVA_START))),
+                 "arr = [3, 0X12, 0x27:].\n");
+    NVA_TEST_FMT(dst,
+                 "arr = [{2:^.5d}, {0:*^3.3d}, {1:^#5.4}].\n",
+                 nva_add(123, nva_add(28510, nva_add(32, NVA_START))),
+                 "arr = [32, 123, 28510].\n");
+}
+
 MU_TEST_SUITE(SameFromFormatTest)
 {
     MU_RUN_TEST(mu_test);
     MU_RUN_TEST(NoneFmtTest);
-    MU_RUN_TEST(IntegerTest);
+    MU_RUN_TEST(IntegerTestBasic);
+    MU_RUN_TEST(IntegerTestPlusChar);
 }
 
 int generic_macro_test_main(void)
