@@ -7,7 +7,7 @@
 
 #include "gtest/gtest.h"
 
-#include "nva/format.h"
+#include "nva/print.h"
 
 #include <algorithm>
 #include <cstdio>

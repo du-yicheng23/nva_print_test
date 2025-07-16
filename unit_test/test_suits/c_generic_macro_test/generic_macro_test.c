@@ -12,7 +12,7 @@
 
 #include "minunit.h"
 
-#include "nva/format.h"
+#include "nva/print.h"
 
 #define STR_EQ(a, b) (strcmp((a), (b)) == 0)
 #define EQU(a, b)    ((a) == (b))
