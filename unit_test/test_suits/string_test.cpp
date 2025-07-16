@@ -423,6 +423,22 @@ TEST(StringTest, nva_fptoa_type_f)
     NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556f, buffer, &attr), "-123.6");
     NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0f, buffer, &attr), "0.0");
     NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0f, buffer, &attr), NEGATIVE_ZERO_PREFIX "0.0");
+
+    // 测试 inf 与 nan
+    constexpr auto inf_v = std::numeric_limits<double>::infinity();
+    constexpr auto nan_v = std::numeric_limits<double>::quiet_NaN();
+
+    attr.flag.upper_case = 0;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(inf_v, buffer, &attr), "inf");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-inf_v, buffer, &attr), "-inf");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(nan_v, buffer, &attr), "nan");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-nan_v, buffer, &attr), "-nan");
+
+    attr.flag.upper_case = 1;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(inf_v, buffer, &attr), "INF");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-inf_v, buffer, &attr), "-INF");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(nan_v, buffer, &attr), "NAN");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-nan_v, buffer, &attr), "-NAN");
 }
 
 TEST(StringTest, nva_fptoa_type_g)
@@ -471,4 +487,20 @@ TEST(StringTest, nva_fptoa_type_g)
     NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556, buffer, &attr2), "-124.");
     NVA_FPTOA_TYPE_F_TEST(nva_fptoa(124.556, buffer, &attr2), "124.");
     NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-124.556, buffer, &attr2), "-124.");
+
+    // 测试 inf 与 nan
+    constexpr auto inf_v = std::numeric_limits<double>::infinity();
+    constexpr auto nan_v = std::numeric_limits<double>::quiet_NaN();
+
+    attr.flag.upper_case = 0;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(inf_v, buffer, &attr), "inf");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-inf_v, buffer, &attr), "-inf");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(nan_v, buffer, &attr), "nan");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-nan_v, buffer, &attr), "-nan");
+
+    attr.flag.upper_case = 1;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(inf_v, buffer, &attr), "INF");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-inf_v, buffer, &attr), "-INF");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(nan_v, buffer, &attr), "NAN");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-nan_v, buffer, &attr), "-NAN");
 }
