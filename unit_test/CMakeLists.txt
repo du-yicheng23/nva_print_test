@@ -17,10 +17,14 @@ option(UNIT_TEST_SUPPORT_INF_AND_NAN "Enable support for INF and NAN in unit tes
 
 add_compile_options(-Winline)
 
-set(NVA_INLINE_MODE ${UNIT_TEST_INLINE_MODE})
 add_subdirectory(../nva_print ../nva_print)
 target_compile_definitions(nva_print INTERFACE -DNVA_ADD_USER_OPTIONS)
 target_include_directories(nva_print INTERFACE ./nva_user_option/)
+
+if (UNIT_TEST_INLINE_MODE)
+    message("Unit test inline mode is enabled.")
+    target_compile_definitions(nva_print INTERFACE -DNVA_USE_INLINE)
+endif ()
 
 add_executable(${PROJECT_NAME}
     test_suits/string_test.cpp
