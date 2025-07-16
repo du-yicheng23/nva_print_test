@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 
 #include "nva/string.h"
+#include "negative_zero.h"
 #include "gtest_extend_message_types.hpp"
 
 #include <string_view>
@@ -312,86 +313,162 @@ TEST(StringTest, nva_uitoa)
     EXPECT_EQ(width, std::string_view{"11111111111111111111111111111111"}.length());
 }
 
-TEST(StringTest, nva_gcvt)
+TEST(StringTest, nva_fptoa_type_f)
 {
     char buffer[50];
 
-#define NVA_GCVT_EQ(func, expect_str)                           \
-    do {                                                        \
-        EXPECT_EQ((func), std::string_view(expect_str).size()); \
-        EXPECT_STREQ(buffer, (expect_str));                     \
+#define NVA_FPTOA_TYPE_F_TEST(func, expect_str)                   \
+    do {                                                          \
+        EXPECT_EQ((func), std::string_view(expect_str).length()); \
+        EXPECT_STREQ(buffer, (expect_str));                       \
     } while (0)
 
-    // 测试 gcvt 函数
-    NVA_GCVT_EQ(nva_gcvt(0.0, 6, buffer), "0.000000");
-    NVA_GCVT_EQ(nva_gcvt(-0.0, 6, buffer), "0.000000");
-    NVA_GCVT_EQ(nva_gcvt(123.456, 6, buffer), "123.456000");
-    NVA_GCVT_EQ(nva_gcvt(-123.456, 6, buffer), "-123.456000");
-    NVA_GCVT_EQ(nva_gcvt(1.23456e10, 6, buffer), "12345600000.000000");
-    NVA_GCVT_EQ(nva_gcvt(-1.23456e10, 6, buffer), "-12345600000.000000");
-    NVA_GCVT_EQ(nva_gcvt(3.14159265358979323846, 6, buffer), "3.141593");
-    NVA_GCVT_EQ(nva_gcvt(-3.14159265358979323846, 6, buffer), "-3.141593");
-    NVA_GCVT_EQ(nva_gcvt(765432123.456, 3, buffer), "765432123.456");
-    NVA_GCVT_EQ(nva_gcvt(-765432123.456, 3, buffer), "-765432123.456");
-    NVA_GCVT_EQ(nva_gcvt(2.61734536, 2, buffer), "2.62");
-    NVA_GCVT_EQ(nva_gcvt(-2.61734536, 2, buffer), "-2.62");
-    NVA_GCVT_EQ(nva_gcvt(2.61734536, 5, buffer), "2.61734");
-    NVA_GCVT_EQ(nva_gcvt(-2.61734536, 5, buffer), "-2.61734");
-    NVA_GCVT_EQ(nva_gcvt(2.61737536, 5, buffer), "2.61738");
-    NVA_GCVT_EQ(nva_gcvt(-2.61737536, 5, buffer), "-2.61738");
+    nva_FloatPointToStrAttr attr{.base = 10,
+                                 .precision = 6,
+                                 .flag = {.keep_decimal_point = 0, .upper_case = 0, .type = NVA_FP_TO_STR_TYPE_F}};
 
-    NVA_GCVT_EQ(nva_gcvt(0.0f, 6, buffer), "0.000000");
-    NVA_GCVT_EQ(nva_gcvt(-0.0f, 6, buffer), "0.000000");
-    NVA_GCVT_EQ(nva_gcvt(123.456f, 4, buffer), "123.4560");
-    NVA_GCVT_EQ(nva_gcvt(-123.456f, 4, buffer), "-123.4560");
-    NVA_GCVT_EQ(nva_gcvt(1.23456e10f, 6, buffer), "12345600000.000000");
-    NVA_GCVT_EQ(nva_gcvt(-1.23456e10f, 6, buffer), "-12345600000.000000");
-    NVA_GCVT_EQ(nva_gcvt(3.14159265358979323846f, 6, buffer), "3.141593");
-    NVA_GCVT_EQ(nva_gcvt(-3.14159265358979323846f, 6, buffer), "-3.141593");
-    NVA_GCVT_EQ(nva_gcvt(2123.456f, 3, buffer), "2123.456");
-    NVA_GCVT_EQ(nva_gcvt(-2123.456f, 3, buffer), "-2123.456");
-    NVA_GCVT_EQ(nva_gcvt(2.61734536f, 2, buffer), "2.62");
-    NVA_GCVT_EQ(nva_gcvt(-2.61734536f, 2, buffer), "-2.62");
-    NVA_GCVT_EQ(nva_gcvt(2.61734536f, 5, buffer), "2.61734");
-    NVA_GCVT_EQ(nva_gcvt(-2.61734536f, 5, buffer), "-2.61734");
-    NVA_GCVT_EQ(nva_gcvt(2.61737536f, 5, buffer), "2.61738");
-    NVA_GCVT_EQ(nva_gcvt(-2.61737536f, 5, buffer), "-2.61738");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0, buffer, &attr), "0.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0, buffer, &attr), NEGATIVE_ZERO_PREFIX "0.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456, buffer, &attr), "123.456000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456, buffer, &attr), "-123.456000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(1.23456e10, buffer, &attr), "12345600000.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-1.23456e10, buffer, &attr), "-12345600000.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(3.14159265358979323846, buffer, &attr), "3.141593");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-3.14159265358979323846, buffer, &attr), "-3.141593");
+    attr.precision = 3;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(765432123.456, buffer, &attr), "765432123.456");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-765432123.456, buffer, &attr), "-765432123.456");
+    attr.precision = 2;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2.61734536, buffer, &attr), "2.62");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2.61734536, buffer, &attr), "-2.62");
+    attr.precision = 5;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2.61734536, buffer, &attr), "2.61734");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2.61734536, buffer, &attr), "-2.61734");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2.61737536, buffer, &attr), "2.61738");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2.61737536, buffer, &attr), "-2.61738");
+
+    attr.precision = 6;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0f, buffer, &attr), "0.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0f, buffer, &attr), NEGATIVE_ZERO_PREFIX "0.000000");
+    attr.precision = 4;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456f, buffer, &attr), "123.4560");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456f, buffer, &attr), "-123.4560");
+    attr.precision = 6;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(1.23456e10f, buffer, &attr), "12345600000.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-1.23456e10f, buffer, &attr), "-12345600000.000000");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(3.14159265358979323846f, buffer, &attr), "3.141593");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-3.14159265358979323846f, buffer, &attr), "-3.141593");
+    attr.precision = 3;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2123.456f, buffer, &attr), "2123.456");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2123.456f, buffer, &attr), "-2123.456");
+    attr.precision = 2;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2.61734536f, buffer, &attr), "2.62");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2.61734536f, buffer, &attr), "-2.62");
+    attr.precision = 5;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2.61734536f, buffer, &attr), "2.61734");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2.61734536f, buffer, &attr), "-2.61734");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(2.61737536f, buffer, &attr), "2.61738");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-2.61737536f, buffer, &attr), "-2.61738");
 
     // 测试精度为0的情况
-    NVA_GCVT_EQ(nva_gcvt(123.456, 0, buffer), "123");
-    NVA_GCVT_EQ(nva_gcvt(-123.456, 0, buffer), "-123");
-    NVA_GCVT_EQ(nva_gcvt(0.0, 0, buffer), "0");
-    NVA_GCVT_EQ(nva_gcvt(-0.0, 0, buffer), "0");
-    NVA_GCVT_EQ(nva_gcvt(123.656, 0, buffer), "124");
-    NVA_GCVT_EQ(nva_gcvt(123.556, 0, buffer), "124");
-    NVA_GCVT_EQ(nva_gcvt(124.556, 0, buffer), "124");
-    NVA_GCVT_EQ(nva_gcvt(-124.556, 0, buffer), "-124");
-    NVA_GCVT_EQ(nva_gcvt(-123.656, 0, buffer), "-124");
-    NVA_GCVT_EQ(nva_gcvt(-123.556, 0, buffer), "-124");
+    attr.precision = 0;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456, buffer, &attr), "123");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456, buffer, &attr), "-123");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0, buffer, &attr), "0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0, buffer, &attr), NEGATIVE_ZERO_PREFIX "0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.656, buffer, &attr), "124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.556, buffer, &attr), "124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(124.556, buffer, &attr), "124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-124.556, buffer, &attr), "-124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.656, buffer, &attr), "-124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556, buffer, &attr), "-124");
 
-    NVA_GCVT_EQ(nva_gcvt(123.456f, 0, buffer), "123");
-    NVA_GCVT_EQ(nva_gcvt(-123.456f, 0, buffer), "-123");
-    NVA_GCVT_EQ(nva_gcvt(0.0f, 0, buffer), "0");
-    NVA_GCVT_EQ(nva_gcvt(-0.0f, 0, buffer), "0");
-    NVA_GCVT_EQ(nva_gcvt(123.656f, 0, buffer), "124");
-    NVA_GCVT_EQ(nva_gcvt(123.556f, 0, buffer), "124");
-    NVA_GCVT_EQ(nva_gcvt(124.556f, 0, buffer), "124");
-    NVA_GCVT_EQ(nva_gcvt(-124.556f, 0, buffer), "-124");
-    NVA_GCVT_EQ(nva_gcvt(-123.656f, 0, buffer), "-124");
-    NVA_GCVT_EQ(nva_gcvt(-123.556f, 0, buffer), "-124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456f, buffer, &attr), "123");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456f, buffer, &attr), "-123");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0f, buffer, &attr), "0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0f, buffer, &attr), NEGATIVE_ZERO_PREFIX "0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.656f, buffer, &attr), "124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.556f, buffer, &attr), "124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(124.556f, buffer, &attr), "124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-124.556f, buffer, &attr), "-124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.656f, buffer, &attr), "-124");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556f, buffer, &attr), "-124");
+
+    nva_FloatPointToStrAttr attr2{.base = 10,
+                                  .precision = 0,
+                                  .flag = {.keep_decimal_point = 1U, .upper_case = 0, .type = NVA_FP_TO_STR_TYPE_F}};
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0f, buffer, &attr2), "0.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0f, buffer, &attr2), NEGATIVE_ZERO_PREFIX "0.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456, buffer, &attr2), "123.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456, buffer, &attr2), "-123.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.656, buffer, &attr2), "124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.656, buffer, &attr2), "-124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.556, buffer, &attr2), "124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556, buffer, &attr2), "-124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(124.556, buffer, &attr2), "124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-124.556, buffer, &attr2), "-124.");
 
     // 测试精度为1的情况
-    NVA_GCVT_EQ(nva_gcvt(123.456, 1, buffer), "123.4");
-    NVA_GCVT_EQ(nva_gcvt(-123.456, 1, buffer), "-123.4");
-    NVA_GCVT_EQ(nva_gcvt(123.556, 1, buffer), "123.6");
-    NVA_GCVT_EQ(nva_gcvt(-123.556, 1, buffer), "-123.6");
-    NVA_GCVT_EQ(nva_gcvt(0.0, 1, buffer), "0.0");
-    NVA_GCVT_EQ(nva_gcvt(-0.0, 1, buffer), "0.0");
+    attr.precision = 1;
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456, buffer, &attr), "123.4");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456, buffer, &attr), "-123.4");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.556, buffer, &attr), "123.6");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556, buffer, &attr), "-123.6");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0, buffer, &attr), "0.0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0, buffer, &attr), NEGATIVE_ZERO_PREFIX "0.0");
 
-    NVA_GCVT_EQ(nva_gcvt(123.456f, 1, buffer), "123.4");
-    NVA_GCVT_EQ(nva_gcvt(-123.456f, 1, buffer), "-123.4");
-    NVA_GCVT_EQ(nva_gcvt(123.556f, 1, buffer), "123.6");
-    NVA_GCVT_EQ(nva_gcvt(-123.556f, 1, buffer), "-123.6");
-    NVA_GCVT_EQ(nva_gcvt(0.0f, 1, buffer), "0.0");
-    NVA_GCVT_EQ(nva_gcvt(-0.0f, 1, buffer), "0.0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456f, buffer, &attr), "123.4");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456f, buffer, &attr), "-123.4");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.556f, buffer, &attr), "123.6");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556f, buffer, &attr), "-123.6");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0f, buffer, &attr), "0.0");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0f, buffer, &attr), NEGATIVE_ZERO_PREFIX "0.0");
+}
+
+TEST(StringTest, nva_fptoa_type_g)
+{
+    auto fptoa = [](const double value, char* const dest, const nva_FloatPointToStrAttr& attr) {
+        return nva_fptoa(value, dest, &attr);
+    };
+
+#define NVA_TEST_FPTOA_CHECK(value, dest, attr, expect_str)                               \
+    do {                                                                                  \
+        EXPECT_EQ(fptoa((value), (dest), (attr)), std::string_view{expect_str}.length()); \
+        EXPECT_STREQ((dest), (expect_str));                                               \
+    } while (0)
+
+    char buffer[50];
+    nva_FloatPointToStrAttr attr{.base = 10,
+                                 .precision = 6,
+                                 .flag = {.keep_decimal_point = 0, .upper_case = 0, .type = NVA_FP_TO_STR_TYPE_G}};
+
+    NVA_TEST_FPTOA_CHECK(0.0, buffer, attr, "0");
+    NVA_TEST_FPTOA_CHECK(123.456789, buffer, attr, "123.456789");
+    NVA_TEST_FPTOA_CHECK(-123.456789, buffer, attr, "-123.456789");
+    NVA_TEST_FPTOA_CHECK(1.23456789e10, buffer, attr, "12345678900");
+    NVA_TEST_FPTOA_CHECK(-1.23456789e10, buffer, attr, "-12345678900");
+    NVA_TEST_FPTOA_CHECK(123.456000, buffer, attr, "123.456");
+    NVA_TEST_FPTOA_CHECK(-123.456, buffer, attr, "-123.456");
+
+    attr.flag.upper_case = NVA_TRUE;
+    NVA_TEST_FPTOA_CHECK(1.23456789e10, buffer, attr, "12345678900");
+    NVA_TEST_FPTOA_CHECK(-1.23456789e10, buffer, attr, "-12345678900");
+
+    attr.precision = 2;
+    NVA_TEST_FPTOA_CHECK(123.456789, buffer, attr, "123.46");
+    NVA_TEST_FPTOA_CHECK(-123.456789, buffer, attr, "-123.46");
+
+    nva_FloatPointToStrAttr attr2{.base = 10,
+                                  .precision = 0,
+                                  .flag = {.keep_decimal_point = 1U, .upper_case = 0, .type = NVA_FP_TO_STR_TYPE_G}};
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(0.0f, buffer, &attr2), "0.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-0.0f, buffer, &attr2), NEGATIVE_ZERO_PREFIX "0.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.456, buffer, &attr2), "123.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.456, buffer, &attr2), "-123.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.656, buffer, &attr2), "124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.656, buffer, &attr2), "-124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(123.556, buffer, &attr2), "124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-123.556, buffer, &attr2), "-124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(124.556, buffer, &attr2), "124.");
+    NVA_FPTOA_TYPE_F_TEST(nva_fptoa(-124.556, buffer, &attr2), "-124.");
 }

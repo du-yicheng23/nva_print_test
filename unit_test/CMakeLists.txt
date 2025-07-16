@@ -13,6 +13,7 @@ set(BUILD_GMOCK OFF)
 add_subdirectory(./googletest)
 
 option(UNIT_TEST_INLINE_MODE "Enable inline mode for unit tests" OFF)
+option(UNIT_TEST_SUPPORT_INF_AND_NAN "Enable support for INF and NAN in unit tests" ON)
 
 add_compile_options(-Winline)
 
@@ -31,6 +32,10 @@ add_executable(${PROJECT_NAME}
     test_suits/c_generic_macro_test/c_generic_macro_test.cpp
     test_suits/c_generic_macro_test/generic_macro_test.c
 )
+
+if (NOT ${UNIT_TEST_SUPPORT_INF_AND_NAN})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DNVA_NO_INF_AND_NAN)
+endif ()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ./minunit/  # add minunit lib
