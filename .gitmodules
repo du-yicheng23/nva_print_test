@@ -1,6 +1,6 @@
 [submodule "nva_print"]
 	path = nva_print
-	url = https://github.com/du-yicheng23/nva_print
+	url = https://github.com/du-yicheng23/nva_print.git
 [submodule "unit_test/googletest"]
 	path = unit_test/googletest
 	url = https://github.com/google/googletest.git
