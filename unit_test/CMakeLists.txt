@@ -35,6 +35,8 @@ add_executable(${PROJECT_NAME}
 
     test_suits/c_generic_macro_test/c_generic_macro_test.cpp
     test_suits/c_generic_macro_test/generic_macro_test.c
+
+    test_suits/print_test.cpp
 )
 
 if (NOT ${UNIT_TEST_SUPPORT_INF_AND_NAN})
