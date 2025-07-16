@@ -17,14 +17,12 @@
     do {                                                               \
         EXPECT_EQ(nva_format((dst), (format), (status)), NVA_SUCCESS); \
         EXPECT_STREQ((dst), (expect));                                 \
-        std::fill(dst, dst + std::size(dst), 0);                       \
     } while (0)
 
 #define NVA_TEST_FMT_CPP(dst, fmt, status, expect)                   \
     do {                                                             \
         EXPECT_EQ(nva::format((dst), (fmt), (status)), NVA_SUCCESS); \
         EXPECT_STREQ((dst), (expect));                               \
-        std::fill(dst, dst + std::size(dst), 0);                     \
     } while (0)
 
 static const char* ptr_to_string(void* ptr, const uint8_t base, const bool prefix, const bool upper_case)
@@ -102,6 +100,9 @@ TEST(FormatTest, NoneFmtTest)
         "std::endl;",
         NVA_START,
         "std::array<std::array<int, 3>, 3> arr{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}; std::cout << arr[0][0] << std::endl;");
+
+    NVA_TEST_FMT(dst, "{{:|^+10.3f}}", nva_double(123.456, NVA_START), "{:|^+10.3f}");
+    NVA_TEST_FMT(dst, "{{:|.2f}}", nva_double(123.456, NVA_START), "{:|.2f}");
 }
 
 TEST(FormatTest, IntegerTestBasic)
@@ -294,4 +295,34 @@ TEST(FormatTest, PtrTest)
     int* p = &a;
 
     NVA_TEST_FMT(dst, "{}", nva_ptr(p, NVA_START), ptr_to_string(p, 16, true, false));
+}
+
+TEST(FormatTest, FloatTest)
+{
+    char dst[100] = {0};
+
+    NVA_TEST_FMT(dst, "{:.3f}", nva_float(1.456f, NVA_START), "1.456");
+    NVA_TEST_FMT(dst, "{:.4f}", nva_float(0.456f, NVA_START), "0.4560");
+    NVA_TEST_FMT_CPP(dst, "{:.2f}", nva::add(123.456f, NVA_START), "123.46");
+    NVA_TEST_FMT_CPP(dst, "{:.0f}", nva::add(123.456f, NVA_START), "123");
+    NVA_TEST_FMT_CPP(dst, "{:#.0f}", nva::add(123.456f, NVA_START), "123.");
+
+    NVA_TEST_FMT(dst, "{:f}", nva_double(123.456, NVA_START), "123.456000");
+    NVA_TEST_FMT(dst, "{:.3f}", nva_double(123.456, NVA_START), "123.456");
+    NVA_TEST_FMT(dst, "{:.2f}", nva_double(123.456, NVA_START), "123.46");
+    NVA_TEST_FMT(dst, "{:#.0f}", nva_double(123.456, NVA_START), "123.");
+
+    NVA_TEST_FMT(dst, "{:9.3f}", nva_double(123.456, NVA_START), "  123.456");
+    NVA_TEST_FMT(dst, "{:012f}", nva_double(123.456, NVA_START), "00123.456000");
+    NVA_TEST_FMT(dst, "{:012.3f}", nva_double(123.456, NVA_START), "00000123.456");
+
+    NVA_TEST_FMT(dst, "{:+<9.3f}", nva_double(123.456, NVA_START), "123.456++");
+    NVA_TEST_FMT(dst, "{: <9.3f}", nva_double(123.456, NVA_START), "123.456  ");
+    NVA_TEST_FMT(dst, "{:>09.3f}", nva_double(123.456, NVA_START), "  123.456");
+    NVA_TEST_FMT(dst, "{:#>9.3f}", nva_double(123.456, NVA_START), "##123.456");
+    NVA_TEST_FMT_CPP(dst, "{::^9.3f}", nva::add(123.456, NVA_START), ":123.456:");
+    NVA_TEST_FMT_CPP(dst, "{:|^10.3f}", nva::add(123.456, NVA_START), "|123.456||");
+    NVA_TEST_FMT_CPP(dst, "{:|^ 10.3f}", nva::add(123.456, NVA_START), "| 123.456|");
+    NVA_TEST_FMT_CPP(dst, "{:|^+10.3f}", nva::add(123.456, NVA_START), "|+123.456|");
+    NVA_TEST_FMT_CPP(dst, "{:|^-10.3f}", nva::add(123.456, NVA_START), "|123.456||");
 }

@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #include "minunit.h"
 
@@ -21,6 +23,60 @@
         mu_assert_string_eq((dst), (expect));                                           \
         memset((dst), 0, NVA_COUNTOF(dst));                                             \
     } while (0)
+
+static const char* ptr_to_string(void* ptr, const uint8_t base, const bool prefix, const bool upper_case)
+{
+    static char str[20] = {0};
+    char fmt[10] = "%";
+
+    if (prefix) {
+        strcat(fmt, "#");
+    }
+
+    strcat(fmt, "z");
+
+    switch (base) {
+    case 2:
+        goto print_bindary;
+    case 8:
+        strcat(fmt, "o");
+        break;
+    case 10:
+        strcat(fmt, "u");
+        break;
+    case 16:
+        strcat(fmt, (upper_case ? "X" : "x"));
+        break;
+    default:
+        break;
+    }
+
+    sprintf(str, fmt, (NVA_SIZE_T)ptr);
+
+    return str;
+
+print_bindary:
+    str[0] = '\0';
+
+    if (prefix) {
+        strcat(str, (upper_case ? "0B" : "0b"));
+    }
+
+    bool is_1 = false;
+    NVA_SIZE_T mask = 0x8000000000000000ULL;
+    for (; mask != 0U; mask >>= 1) {
+        char buffer[2] = {0};
+        sprintf(buffer, "%d", ((NVA_SIZE_T)ptr & mask) ? 1 : 0);  // 按位与运算，逐一输出 n 的每一位
+        if (!is_1 && strcmp(buffer, "1") == 0) {
+            is_1 = true;
+        }
+        if (is_1) {
+            strcat(str, buffer);
+        }
+    }
+
+    return str;
+}
 
 MU_TEST(mu_test)
 {
@@ -206,6 +262,59 @@ MU_TEST(StringTest)
                  "12Hello, World!     \nI\'m nva.34");
 }
 
+// 先测试辅助函数 ptr_to_string
+MU_TEST(PtrTest_ptr_to_string_FuncTest)
+{
+    mu_assert_string_eq(ptr_to_string((void*)0x12345, 16, true, false), "0x12345");
+    mu_assert_string_eq(ptr_to_string((void*)0x13462, 16, true, true), "0X13462");
+    mu_assert_string_eq(ptr_to_string((void*)0x13462, 16, false, true), "13462");
+    mu_assert_string_eq(ptr_to_string((void*)013462, 8, false, true), "13462");
+    mu_assert_string_eq(ptr_to_string((void*)2313462, 10, false, true), "2313462");
+    mu_assert_string_eq(ptr_to_string((void*)0x59, 2, true, true), "0B1011001");
+    mu_assert_string_eq(ptr_to_string((void*)0x59, 2, true, false), "0b1011001");
+    mu_assert_string_eq(ptr_to_string((void*)0x59, 2, false, false), "1011001");
+}
+
+MU_TEST(PtrTest)
+{
+    char dst[100] = {0};
+
+    int a;
+    int* p = &a;
+
+    NVA_TEST_FMT(dst, "{}", nva_ptr(p, NVA_START), ptr_to_string(p, 16, true, false));
+}
+
+MU_TEST(FloatTest)
+{
+    char dst[100] = {0};
+
+    NVA_TEST_FMT(dst, "{:.3f}", nva_add(1.456f, NVA_START), "1.456");
+    NVA_TEST_FMT(dst, "{:.4f}", nva_add(0.456f, NVA_START), "0.4560");
+    NVA_TEST_FMT(dst, "{:.2f}", nva_add(123.456f, NVA_START), "123.46");
+    NVA_TEST_FMT(dst, "{:.0f}", nva_add(123.456f, NVA_START), "123");
+    NVA_TEST_FMT(dst, "{:#.0f}", nva_add(123.456f, NVA_START), "123.");
+
+    NVA_TEST_FMT(dst, "{:f}", nva_add(123.456, NVA_START), "123.456000");
+    NVA_TEST_FMT(dst, "{:.3f}", nva_add(123.456, NVA_START), "123.456");
+    NVA_TEST_FMT(dst, "{:.2f}", nva_add(123.456, NVA_START), "123.46");
+    NVA_TEST_FMT(dst, "{:#.0f}", nva_add(123.456, NVA_START), "123.");
+
+    NVA_TEST_FMT(dst, "{:9.3f}", nva_add(123.456, NVA_START), "  123.456");
+    NVA_TEST_FMT(dst, "{:012f}", nva_add(123.456, NVA_START), "00123.456000");
+    NVA_TEST_FMT(dst, "{:012.3f}", nva_add(123.456, NVA_START), "00000123.456");
+
+    NVA_TEST_FMT(dst, "{:+<9.3f}", nva_add(123.456, NVA_START), "123.456++");
+    NVA_TEST_FMT(dst, "{: <9.3f}", nva_add(123.456, NVA_START), "123.456  ");
+    NVA_TEST_FMT(dst, "{:>09.3f}", nva_add(123.456, NVA_START), "  123.456");
+    NVA_TEST_FMT(dst, "{:#>9.3f}", nva_add(123.456, NVA_START), "##123.456");
+    NVA_TEST_FMT(dst, "{::^9.3f}", nva_add(123.456, NVA_START), ":123.456:");
+    NVA_TEST_FMT(dst, "{:|^10.3f}", nva_add(123.456, NVA_START), "|123.456||");
+    NVA_TEST_FMT(dst, "{:|^ 10.3f}", nva_add(123.456, NVA_START), "| 123.456|");
+    NVA_TEST_FMT(dst, "{:|^+10.3f}", nva_add(123.456, NVA_START), "|+123.456|");
+    NVA_TEST_FMT(dst, "{:|^-10.3f}", nva_add(123.456, NVA_START), "|123.456||");
+}
+
 MU_TEST_SUITE(SameFromFormatTest)
 {
     MU_RUN_TEST(mu_test);
@@ -214,6 +323,9 @@ MU_TEST_SUITE(SameFromFormatTest)
     MU_RUN_TEST(IntegerTestPlusChar);
     MU_RUN_TEST(CharTest);
     MU_RUN_TEST(StringTest);
+    MU_RUN_TEST(PtrTest_ptr_to_string_FuncTest);
+    MU_RUN_TEST(PtrTest);
+    MU_RUN_TEST(FloatTest);
 }
 
 int generic_macro_test_main(void)
