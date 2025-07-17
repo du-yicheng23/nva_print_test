@@ -186,7 +186,7 @@
         </Utilities>
         <Target51>
           <Target51Misc>
-            <MemoryModel>0</MemoryModel>
+            <MemoryModel>1</MemoryModel>
             <RTOS>0</RTOS>
             <RomSize>2</RomSize>
             <DataHold>0</DataHold>
@@ -322,7 +322,7 @@
             <InterruptVectorAddress>0</InterruptVectorAddress>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT,NVA_NO_STRING_H,NVA_NO_LONG_LONG_TYPE</Define>
+              <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT,NVA_NO_STRING_H,NVA_NO_LONG_LONG_TYPE,NVA_NO_INF_AND_NAN</Define>
               <Undefine></Undefine>
               <IncludePath>.\inc;..\..\nva_print\inc;..\..\nva_print\decl_and_def</IncludePath>
             </VariousControls>
@@ -400,6 +400,11 @@
               <FileName>nva_string.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\nva_print\src\nva_string.c</FilePath>
+            </File>
+            <File>
+              <FileName>nva_format.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\nva_print\src\nva_format.c</FilePath>
             </File>
           </Files>
         </Group>
