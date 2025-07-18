@@ -11,7 +11,7 @@
 
 目前有三种测试路径：`build_test`、`unit_test` 和 `mcu_test`。
 
-除 `mcu_test` 路径下的部分平台，目前仅支持使用 CMake 进行构建和测试。
+除了 `mcu_test`，目前仅支持使用 CMake 进行构建和测试。
 您需要预定义 CMake 变量 `NVA_TEST_ITEM_NAME` 以指定运行的测试路径，变量的值从上述测试路径中选择一个。
 
 构建示例如下：
@@ -41,9 +41,7 @@ ctest
 此路径用于测试 `nva_print` 在嵌入式平台（如 STM32）上的兼容性和性能。
 
 由于嵌入式平台的特殊性，部分平台不支持使用 CMake 进行构建和测试。您可以查看 `mcu_test`
-下各自平台的路径内的 `README.md` 文件以获取构建并运行的方式。
-
-对于支持 CMake 的嵌入式平台，您可以查看 `mcu_test/README.md` 文件以获取更多信息。
+路径内的 `README.md` 文件以获取构建并运行的方式。
 
 ## 贡献指南
 
