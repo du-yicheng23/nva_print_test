@@ -177,7 +177,7 @@
           </Flash1>
           <bUseTDR>0</bUseTDR>
           <Flash2></Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -314,7 +314,7 @@
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
             <Fuzzy>3</Fuzzy>
-            <Optimize>8</Optimize>
+            <Optimize>9</Optimize>
             <WarningLevel>2</WarningLevel>
             <SizeSpeed>1</SizeSpeed>
             <ObjectExtend>1</ObjectExtend>
@@ -322,7 +322,7 @@
             <InterruptVectorAddress>0</InterruptVectorAddress>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT,NVA_NO_STRING_H,NVA_NO_LONG_LONG_TYPE,NVA_NO_INF_AND_NAN</Define>
+              <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT,NVA_NO_LONG_LONG_TYPE,NVA_NO_INF_AND_NAN</Define>
               <Undefine></Undefine>
               <IncludePath>.\inc;..\..\nva_print\inc;..\..\nva_print\decl_and_def;..\</IncludePath>
             </VariousControls>

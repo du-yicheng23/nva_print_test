@@ -35,12 +35,12 @@ void main(void)
 
 void serialInit(void)
 {
-    SCON = 0x40;
-    PCON = 0x00;
-
-	TMOD = 0x20;
-	TH1 = 0xFD;
+    PCON &= 0x7F;
+	SCON = 0x40;
+	TMOD &= 0x0F;
+	TMOD |= 0x20;
 	TL1 = 0xFD;
-	TI = 0;
+	TH1 = 0xFD;
+	ET1 = 0;
 	TR1 = 1;
 }
