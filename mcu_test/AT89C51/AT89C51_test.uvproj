@@ -324,7 +324,7 @@
               <MiscControls></MiscControls>
               <Define>NVA_NO_STDBOOL_H,NVA_NO_RESTRICT,NVA_NO_STRING_H,NVA_NO_LONG_LONG_TYPE,NVA_NO_INF_AND_NAN</Define>
               <Undefine></Undefine>
-              <IncludePath>.\inc;..\..\nva_print\inc;..\..\nva_print\decl_and_def</IncludePath>
+              <IncludePath>.\inc;..\..\nva_print\inc;..\..\nva_print\decl_and_def;..\</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -405,6 +405,21 @@
               <FileName>nva_format.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\nva_print\src\nva_format.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>nva_mcu_test_suits</GroupName>
+          <Files>
+            <File>
+              <FileName>mcu_test_suits.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu_test_suits.c</FilePath>
+            </File>
+            <File>
+              <FileName>mcu_test_suits.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\mcu_test_suits.h</FilePath>
             </File>
           </Files>
         </Group>

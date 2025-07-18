@@ -5,16 +5,42 @@
  * @brief 主函数
  */
 
+#include <REGX51.H>
+
 #include "nva/print.h"
+#include "mcu_test_suits.h"
+
+void serialInit(void);
 
 int nva_putchar(char c)
 {
-    return c;
+    SBUF = c;
+
+	while (TI == 0) {
+    }
+	TI = 0;
+
+    return 1;
 }
 
 void main(void)
 {
-    nva_print("Hello, {}\n", nva_str("world!", NVA_START));
+    serialInit();
+
+    nva_mcu_test_run();
+
     while (1) {
     }
+}
+
+void serialInit(void)
+{
+    SCON = 0x40;
+    PCON = 0x00;
+
+	TMOD = 0x20;
+	TH1 = 0xFD;
+	TL1 = 0xFD;
+	TI = 0;
+	TR1 = 1;
 }
